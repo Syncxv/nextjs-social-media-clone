@@ -1,5 +1,6 @@
-import { Button } from "@mantine/core";
-import type { NextPage } from "next";
+import { Button } from '@mantine/core'
+import type { NextPage } from 'next'
+import withAuth from '../components/withAtuh'
 
 const Home: NextPage = () => {
     return (
@@ -7,7 +8,7 @@ const Home: NextPage = () => {
             <span>HEHEHEHEHHEHE HA</span>
             <Button color="gray"> HAHHA </Button>
         </div>
-    );
-};
+    )
+}
 
-export default Home;
+export default withAuth(Home)

@@ -1,32 +1,40 @@
 import { Avatar, Box, Button, Flex, Heading, Spacer, Text, useColorModeValue } from '@chakra-ui/react'
 import { NextPage } from 'next'
-import { ChatCircle, DotsThree, Gear, Heart, House } from 'phosphor-react'
+import { useRouter } from 'next/router'
+import { ChatCircle, DotsThree, Gear, Heart, House, UserCircle } from 'phosphor-react'
 import React from 'react'
+import { userStore } from '../../../stores/user'
 
 type Props = {}
 
-const SideButton: React.FC<{ leftIcon: any }> = ({ leftIcon, children }) => {
+const SideButton: React.FC<{ leftIcon: any; path?: string }> = ({ leftIcon, children, path }) => {
     const textColor = useColorModeValue('#646FA7', '#B5B7BF')
     const textHover = useColorModeValue('#2B5BFC', '#ffffff')
+    const router = useRouter()
+    const selected = router.pathname == path
     return (
         <Button
             width="100%"
             outline="none"
-            backgroundColor="transparent"
+            backgroundColor={selected ? '#EBEFFD' : 'transparent'}
             justifyContent="flex-start"
             _focus={{ boxShadow: 'none' }}
             leftIcon={leftIcon}
             color={textColor}
             _hover={{
-                background: '#EBEFFD',
+                background: selected ? 'transparent' : '#EBEFFD',
                 color: textHover
             }}
+            onClick={() => (path && router.pathname !== path ? router.push(path) : null)}
         >
             {children}
         </Button>
     )
 }
 const SideBar: NextPage<Props> = () => {
+    const router = useRouter()
+    const user = userStore(state => state.user)!
+    console.log(router)
     return (
         <>
             <Box as="aside" height="100%" width="15rem" padding="2rem .5rem">
@@ -49,15 +57,23 @@ const SideBar: NextPage<Props> = () => {
                         <Text fontSize="xs" color="grey" ml="1rem">
                             NAVIGATION
                         </Text>
-                        <SideButton leftIcon={<House size={20} />}>Home</SideButton>
-                        <SideButton leftIcon={<ChatCircle size={20} />}>Messages</SideButton>
-                        <SideButton leftIcon={<Heart size={20} />}>Profile</SideButton>
+                        <SideButton path="/" leftIcon={<House size={20} />}>
+                            Home
+                        </SideButton>
+                        <SideButton path="/messages" leftIcon={<ChatCircle size={20} />}>
+                            Messages
+                        </SideButton>
+                        <SideButton path={`/profile/${user._id}`} leftIcon={<UserCircle size={20} />}>
+                            Profile
+                        </SideButton>
                     </Flex>
                     <Flex direction="column" gap={2} as="section" mt={8} width="100%">
                         <Text fontSize="xs" color="grey" ml="1rem">
                             CUSTOMIZATION
                         </Text>
-                        <SideButton leftIcon={<Gear size={20} />}>Settings</SideButton>
+                        <SideButton path="/settings" leftIcon={<Gear size={20} />}>
+                            Settings
+                        </SideButton>
                         <SideButton leftIcon={<DotsThree size={20} />}>More</SideButton>
                     </Flex>
                 </Flex>

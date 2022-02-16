@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react'
 import type { GetServerSideProps, NextPage } from 'next'
 import client from '../apollo/client'
 import { GET_POSTS_QUERY } from '../apollo/queries/posts'
-import Layout from '../components/layout'
+import Layout from '../components/Layout'
 import Post from '../components/moluclues/Post'
 import { PostType } from '../types'
 

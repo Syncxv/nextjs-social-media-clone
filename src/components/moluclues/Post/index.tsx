@@ -126,7 +126,7 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
             >
                 <Flex gap={2}>
                     <Avatar name={post.owner.username} src={post.owner.avatar} />
-                    <Flex direction="column">
+                    <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
                             <Text fontSize="lg">{post.owner.displayName}</Text>
                             <Text color="gray.300" fontSize="sm">

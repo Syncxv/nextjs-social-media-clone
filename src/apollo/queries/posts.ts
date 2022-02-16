@@ -54,6 +54,7 @@ export const GET_POST_QUERY = gql`
                 _id
                 content
                 likes
+                likedUsers
                 author {
                     _id
                     username

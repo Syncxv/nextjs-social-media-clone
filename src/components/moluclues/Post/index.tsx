@@ -5,19 +5,20 @@ import { Chat, Heart, Share } from 'phosphor-react'
 import React, { memo, useState } from 'react'
 import { POST_LIKE_MUTATION } from '../../../apollo/queries/posts'
 import { userStore } from '../../../stores/user'
-import { PostType } from '../../../types'
+import { CommentType, PostType } from '../../../types'
+import Comment from './Comment'
 interface Props {
     post: PostType
 }
-export const Actions: React.FC<{ width: string; post: PostType }> = memo(({ width, post }) => {
+export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ width, item }) => {
     const client = useApolloClient()
     const user = userStore(state => state.user)
-    const [isLiked, setLiked] = useState(user ? post.likedUsers.includes(user!._id) : false)
-    const [likes, setLikes] = useState(post.likedUsers.length)
+    const [isLiked, setLiked] = useState(user ? item.likedUsers.includes(user!._id) : false)
+    const [likes, setLikes] = useState(item.likedUsers.length)
     const handleLike = async () => {
         const { data } = await client.mutate<{ likePost: { post: PostType } }>({
             mutation: POST_LIKE_MUTATION,
-            variables: { likePostPostId2: post._id }
+            variables: { likePostPostId2: item._id }
         })
         const resIsLiked = data!.likePost.post.likedUsers.includes(user!._id)
         console.log(resIsLiked)
@@ -54,7 +55,7 @@ export const Actions: React.FC<{ width: string; post: PostType }> = memo(({ widt
                     _focus={{ boxShadow: 'none' }}
                     _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
                 />
-                <Text>{post.comments.length}</Text>
+                <Text>{(item as PostType).comments.length}</Text>
             </Flex>
             <IconButton
                 aria-label="Share"
@@ -99,7 +100,7 @@ const Post: React.FC<Props> = ({ post }) => {
                                 <Image borderRadius={16} src={post.attachment} alt="well" />
                             </Box>
                         )}
-                        <Actions post={post} width="80%" />
+                        <Actions item={post} width="80%" />
                     </Flex>
                 </Flex>
             </Box>
@@ -140,9 +141,12 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                                 <Image borderRadius={16} src={post.attachment} alt="well" />
                             </Box>
                         )}
-                        <Actions post={post} width="80%" />
+                        <Actions item={post} width="80%" />
                     </Flex>
                 </Flex>
+            </Box>
+            <Box className="comments">
+                {Boolean(post.comments.length) && post.comments.map(comment => <Comment comment={comment} />)}
             </Box>
         </>
     )

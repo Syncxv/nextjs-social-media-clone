@@ -9,13 +9,16 @@ import {
     InputRightElement,
     Stack,
     Link,
-    FormLabel
+    FormLabel,
+    Box,
+    FormErrorMessage
 } from '@chakra-ui/react'
 import type { NextPage } from 'next'
 import Router from 'next/router'
 import { Lock, UserCircle } from 'phosphor-react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
+import { useForm } from 'react-hook-form'
 import { LOGIN_MUTATION } from '../apollo/mutations/Login'
 import { LoginResponse } from '../types'
 export const CenterForm = styled.form`
@@ -31,29 +34,56 @@ const Login: NextPage = () => {
             console.log(res)
             if (res.errors !== null) {
                 return res.errors.forEach(err => {
-                    // form.setFieldError(err.field as 'password' | 'username', err.message)
+                    console.log(err)
+                    setError(err.field, { message: err.message })
                 })
             }
             localStorage.setItem('token', res.accessToken)
             Router.push('/')
         }
     })
+    const {
+        handleSubmit,
+        register,
+        setError,
+        formState: { errors, isSubmitting }
+    } = useForm()
+
     const handleShowClick = () => setShowPassword(!showPassword)
+    const mySubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        // do your early validation here
+        console.log(errors)
+        handleSubmit(values => {
+            console.log(errors, isSubmitting, values)
+            login({ variables: { userLoginOptions2: values } })
+        })(e)
+    }
+
     return (
         <>
-            <CenterForm onSubmit={() => console.log('WOO')}>
+            <CenterForm onSubmit={mySubmit}>
                 <Stack spacing={4} p="1rem" backgroundColor="whiteAlpha.900" boxShadow="md">
-                    <FormControl>
-                        <FormLabel htmlFor="email">Email</FormLabel>
+                    <FormControl isInvalid={errors.username}>
+                        <FormLabel htmlFor="username">Username</FormLabel>
                         <InputGroup>
                             <InputLeftElement
                                 pointerEvents="none"
                                 children={<UserCircle size={20} color="gray" />}
                             />
-                            <Input type="text" id="email" placeholder="email address" />
+                            <Input
+                                id="username"
+                                placeholder="name of the user"
+                                {...register('username', {
+                                    required: 'This is required',
+                                    minLength: { value: 3, message: 'Minimum length should be 3' }
+                                })}
+                            />
                         </InputGroup>
+                        <FormErrorMessage>{errors.username && errors.username.message}</FormErrorMessage>
                     </FormControl>
-                    <FormControl>
+
+                    <FormControl isInvalid={errors.password}>
                         <FormLabel htmlFor="password">Password</FormLabel>
                         <InputGroup>
                             <InputLeftElement
@@ -61,10 +91,15 @@ const Login: NextPage = () => {
                                 color="gray.300"
                                 children={<Lock size={20} color="gray" />}
                             />
+
                             <Input
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
-                                placeholder="Password"
+                                placeholder="*****"
+                                {...register('password', {
+                                    required: 'This is required',
+                                    minLength: { value: 3, message: 'Minimum length should be 3' }
+                                })}
                             />
                             <InputRightElement width="4.5rem">
                                 <Button h="1.75rem" size="sm" onClick={handleShowClick}>
@@ -72,11 +107,19 @@ const Login: NextPage = () => {
                                 </Button>
                             </InputRightElement>
                         </InputGroup>
+                        <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>
                         <FormHelperText textAlign="right">
                             <Link>forgot password?</Link>
                         </FormHelperText>
                     </FormControl>
-                    <Button borderRadius={10} type="submit" variant="solid" colorScheme="blue" width="full">
+                    <Button
+                        borderRadius={10}
+                        type="submit"
+                        isLoading={isSubmitting}
+                        variant="solid"
+                        colorScheme="blue"
+                        width="full"
+                    >
                         Login
                     </Button>
                 </Stack>

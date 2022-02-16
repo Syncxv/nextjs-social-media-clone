@@ -18,6 +18,7 @@
         "phosphor-react": "^1.4.0",
         "react": "17.0.2",
         "react-dom": "17.0.2",
+        "react-hook-form": "^7.27.0",
         "sass": "^1.49.7",
         "styled-components": "^5.3.3",
         "zustand": "^3.7.0"

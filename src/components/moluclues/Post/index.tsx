@@ -1,10 +1,12 @@
 import { Avatar, Box, Flex, Image, Text, Wrap } from '@chakra-ui/react'
+import { useRouter } from 'next/router'
 import React from 'react'
 import { PostType } from '../../../types'
 interface Props {
     post: PostType
 }
 const Post: React.FC<Props> = ({ post }) => {
+    const router = useRouter()
     return (
         <>
             <Box
@@ -15,6 +17,8 @@ const Post: React.FC<Props> = ({ post }) => {
                 padding={4}
                 borderBottom="1px"
                 borderColor="gray.200"
+                cursor="pointer"
+                onClick={() => router.push(`/post/${post._id}`)}
             >
                 <Flex gap={2}>
                     <Avatar name={post.owner.username} src={post.owner.avatar} />

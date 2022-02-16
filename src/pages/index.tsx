@@ -11,11 +11,9 @@ const Home: NextPage<{ posts: PostType[] }> = ({ posts }) => {
     return (
         <>
             <Layout>
-                <Box overflowY="scroll" maxH="100vh">
-                    {posts.map((post, i) => (
-                        <Post key={i} post={post} />
-                    ))}
-                </Box>
+                {posts.map((post, i) => (
+                    <Post key={i} post={post} />
+                ))}
             </Layout>
         </>
     )

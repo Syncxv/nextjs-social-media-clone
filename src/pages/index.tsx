@@ -1,13 +1,12 @@
-import { Button } from '@mantine/core'
 import type { NextPage } from 'next'
+import SideBar from '../components/organism/Sidebar'
 import withAuth from '../components/withAtuh'
 
 const Home: NextPage = () => {
     return (
-        <div>
-            <span>HEHEHEHEHHEHE HA</span>
-            <Button color="gray"> HAHHA </Button>
-        </div>
+        <>
+            <div>hi</div>
+        </>
     )
 }
 

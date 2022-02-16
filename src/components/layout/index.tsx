@@ -8,9 +8,9 @@ interface Props {}
 
 const Layout: NextPage<Props> = ({ children }) => {
     return (
-        <HStack alignItems="flex-start" width="100vw" height="100vh">
+        <HStack justifyContent="center" alignItems="flex-start" width="100vw" height="100vh">
             <SideBar />
-            <Box width="100%">{children}</Box>
+            <Box width="40%">{children}</Box>
         </HStack>
     )
 }

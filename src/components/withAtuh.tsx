@@ -20,7 +20,8 @@ const useAuth = () => {
                 setError(true)
             })
             .finally(() => setLoading(false))
-    }, [store])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     return { data, loading, error }
 }
 const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {

@@ -24,6 +24,7 @@ const useAuth = () => {
     return { data, loading, error }
 }
 const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {
+    // eslint-disable-next-line react/display-name
     return (props: any) => {
         const { loading, error } = useAuth()
         if (error) {

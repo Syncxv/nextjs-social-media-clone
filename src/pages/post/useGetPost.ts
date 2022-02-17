@@ -38,7 +38,7 @@ export const useGetPostData = (id: string): getPostDataReturnType => {
                 setError(err)
             })
             .finally(() => setLoading(false))
-    }, [id])
+    }, [id, client])
 
     return { data, loading, error }
 }

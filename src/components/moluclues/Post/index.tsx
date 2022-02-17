@@ -68,6 +68,7 @@ export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ widt
         </Flex>
     )
 })
+Actions.displayName = Actions.name
 const Post: React.FC<Props> = ({ post }) => {
     const router = useRouter()
     return (
@@ -162,10 +163,11 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                 </Flex>
             </Box>
             <Box className="comments">
-                {Boolean(post.comments.length) && post.comments.map(comment => <Comment comment={comment} />)}
+                {Boolean(post.comments.length) &&
+                    post.comments.map((comment, i) => <Comment key={i} comment={comment} />)}
             </Box>
         </>
     )
 }
-
+Post.displayName = Post.name
 export default Post

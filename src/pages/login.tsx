@@ -10,7 +10,6 @@ import {
     Stack,
     Link,
     FormLabel,
-    Box,
     FormErrorMessage
 } from '@chakra-ui/react'
 import type { NextPage } from 'next'
@@ -67,10 +66,9 @@ const Login: NextPage = () => {
                     <FormControl isInvalid={errors.username}>
                         <FormLabel htmlFor="username">Username</FormLabel>
                         <InputGroup>
-                            <InputLeftElement
-                                pointerEvents="none"
-                                children={<UserCircle size={20} color="gray" />}
-                            />
+                            <InputLeftElement pointerEvents="none">
+                                <UserCircle size={20} color="gray" />
+                            </InputLeftElement>
                             <Input
                                 id="username"
                                 placeholder="name of the user"
@@ -86,11 +84,9 @@ const Login: NextPage = () => {
                     <FormControl isInvalid={errors.password}>
                         <FormLabel htmlFor="password">Password</FormLabel>
                         <InputGroup>
-                            <InputLeftElement
-                                pointerEvents="none"
-                                color="gray.300"
-                                children={<Lock size={20} color="gray" />}
-                            />
+                            <InputLeftElement pointerEvents="none" color="gray.300">
+                                <Lock size={20} color="gray" />
+                            </InputLeftElement>
 
                             <Input
                                 id="password"
@@ -127,5 +123,4 @@ const Login: NextPage = () => {
         </>
     )
 }
-
 export default Login

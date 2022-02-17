@@ -24,6 +24,7 @@ import { ArrowLeft, Chat, Heart, Share, Image as ImageIcon, Rectangle } from 'ph
 import React, { memo, useRef, useState } from 'react'
 import { ADD_COMMENT_MUTATION } from '../../../apollo/mutations/comment'
 import { POST_LIKE_MUTATION } from '../../../apollo/queries/posts'
+import { useLikePost } from '../../../hooks/useLikePost'
 import { userStore } from '../../../stores/user'
 import { PostType, UserType } from '../../../types'
 import Comment from './Comment'
@@ -136,21 +137,8 @@ const ReplyModal: React.FC<{ isOpen: boolean; onClose: any; user: UserType; post
     )
 }
 export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ width, item }) => {
-    const client = useApolloClient()
-    const user = userStore(state => state.user)!
-    const [isLiked, setLiked] = useState(user ? item.likedUsers.includes(user!._id) : false)
-    const [likes, setLikes] = useState(item.likedUsers.length)
+    const { handleLike, isLiked, likes, user } = useLikePost(item)
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const handleLike = async () => {
-        const { data } = await client.mutate<{ likePost: { post: PostType } }>({
-            mutation: POST_LIKE_MUTATION,
-            variables: { likePostPostId2: item._id }
-        })
-        const resIsLiked = data!.likePost.post.likedUsers.includes(user!._id)
-        console.log(resIsLiked)
-        setLiked(resIsLiked)
-        setLikes(prev => (resIsLiked ? prev + 1 : prev - 1))
-    }
     return (
         <>
             <Flex
@@ -276,6 +264,8 @@ interface PostInfoProps {
     post: PostType
 }
 export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
+    const { handleLike, isLiked, likes, user } = useLikePost(post)
+    const { isOpen, onOpen, onClose } = useDisclosure()
     return (
         <>
             <PostHeader label="Post" />
@@ -286,9 +276,9 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                 borderColor="gray.200"
                 cursor="pointer"
             >
-                <Flex gap={2}>
-                    <Avatar name={post.owner.username} src={post.owner.avatar} />
-                    <Flex direction="column" width="100%">
+                <Flex direction="column" gap={2}>
+                    <Wrap>
+                        <Avatar name={post.owner.username} src={post.owner.avatar} />
                         <Flex className="user" alignItems="center" gap={2}>
                             <Text fontWeight="500" fontSize="lg">
                                 {post.owner.displayName}
@@ -297,16 +287,69 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                                 @{post.owner.username}
                             </Text>
                         </Flex>
-                        <Wrap className="content">
-                            <Text>{post.content}</Text>
+                    </Wrap>
+                    <Flex direction="column" width="100%">
+                        <Wrap borderBottom="1px" borderColor="gray.200">
+                            <Wrap ml={2} fontSize="1.3rem" className="content">
+                                <Text>{post.content}</Text>
+                            </Wrap>
+                            {post.attachment && (
+                                <Box boxSize="80%">
+                                    <Image borderRadius={16} src={post.attachment} alt="well" />
+                                </Box>
+                            )}
                         </Wrap>
-                        {post.attachment && (
-                            <Box boxSize="80%">
-                                <Image borderRadius={16} src={post.attachment} alt="well" />
-                            </Box>
-                        )}
-                        <Actions item={post} width="80%" />
+                        <Flex mt={4} gap={7}>
+                            <Flex alignItems="center" gap={2}>
+                                <Text>{likes}</Text>
+                                <Text fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
+                                    Likes
+                                </Text>
+                            </Flex>
+                            <Flex alignItems="center" gap={2}>
+                                <Text>{post.comments.length}</Text>
+                                <Text fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
+                                    Replies / Comments
+                                </Text>
+                            </Flex>
+                        </Flex>
                     </Flex>
+                    <Flex
+                        onClick={e => e.stopPropagation()}
+                        padding="0 .5rem"
+                        width="100%"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        gap={4}
+                    >
+                        <IconButton
+                            aria-label="Like"
+                            backgroundColor="transparent"
+                            icon={isLiked ? <Heart weight="fill" color="rgba(255, 19, 97, 1)" /> : <Heart />}
+                            borderRadius="50%"
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(255, 19, 97, 0.37)' }}
+                            onClick={handleLike}
+                        />
+                        <IconButton
+                            aria-label="Reply"
+                            backgroundColor="transparent"
+                            icon={<Chat />}
+                            borderRadius="50%"
+                            onClick={onOpen}
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
+                        />
+                        <IconButton
+                            aria-label="Share"
+                            backgroundColor="transparent"
+                            icon={<Share />}
+                            borderRadius="50%"
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
+                        />
+                    </Flex>
+                    <ReplyModal post={post} isOpen={isOpen} onClose={onClose} user={user} />
                 </Flex>
             </Box>
             <Box className="comments">

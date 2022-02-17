@@ -297,14 +297,14 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
                     </Wrap>
                     <Flex direction="column" width="100%">
                         <Wrap pb={3} borderBottom="1px" borderColor="gray.200">
-                            <Wrap ml={2} fontSize="1.3rem" className="content">
+                            <Flex direction="column" fontSize="1.3rem" className="content">
                                 <Text>{post.content}</Text>
-                            </Wrap>
-                            {post.attachment && (
-                                <Box boxSize="80%">
-                                    <Image borderRadius={16} src={post.attachment} alt="well" />
-                                </Box>
-                            )}
+                                {post.attachment && (
+                                    <Box boxSize="80%">
+                                        <Image borderRadius={16} src={post.attachment} alt="well" />
+                                    </Box>
+                                )}
+                            </Flex>
                         </Wrap>
                         <Flex mt={4} gap={7}>
                             <Flex alignItems="center" gap={2}>

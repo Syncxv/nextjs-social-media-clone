@@ -16,6 +16,7 @@ export const GET_POSTS_QUERY = gql`
             comments {
                 _id
                 content
+                attachment
                 likes
                 author {
                     username
@@ -53,6 +54,7 @@ export const GET_POST_QUERY = gql`
             comments {
                 _id
                 content
+                attachment
                 likes
                 likedUsers
                 author {

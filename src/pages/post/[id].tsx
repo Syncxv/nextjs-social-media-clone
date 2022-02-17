@@ -6,7 +6,7 @@ import { GET_POSTS_QUERY, GET_POST_QUERY } from '../../apollo/queries/posts'
 import Layout from '../../components/Layout'
 import { PostInfo } from '../../components/moluclues/Post'
 import withAuth from '../../components/withAtuh'
-import { useGetPostData } from './useGetPost'
+import { useGetPostData } from '../../hooks/useGetPost'
 
 interface Props {}
 

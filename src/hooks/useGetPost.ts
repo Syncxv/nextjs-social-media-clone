@@ -1,7 +1,7 @@
 import { useApolloClient } from '@apollo/client'
 import { useState, useEffect } from 'react'
-import { GET_POSTS_QUERY, GET_POST_QUERY } from '../../apollo/queries/posts'
-import { PostType } from '../../types'
+import { GET_POSTS_QUERY, GET_POST_QUERY } from '../apollo/queries/posts'
+import { PostType } from '../types'
 
 interface getPostDataReturnType {
     data: PostType | null | undefined

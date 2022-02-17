@@ -3,7 +3,7 @@ import Layout from '../components/Layout'
 
 interface Props {}
 
-const Messages = (props: Props) => {
+const Messages: React.FC<Props> = ({}) => {
     return (
         <Layout>
             <div>Messages</div>

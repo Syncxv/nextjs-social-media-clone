@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import Router from 'next/router'
 import React, { useEffect, useState } from 'react'
-import { userStore, UserStoreHehe } from '../stores/user'
+import { userStore } from '../stores/user'
 import { UserType } from '../types'
 const useAuth = () => {
     const store = userStore()
@@ -20,7 +20,7 @@ const useAuth = () => {
                 setError(true)
             })
             .finally(() => setLoading(false))
-    }, [])
+    }, [store])
     return { data, loading, error }
 }
 const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {

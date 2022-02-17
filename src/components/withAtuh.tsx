@@ -32,7 +32,6 @@ const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {
             Router.push('/login')
         }
         if (loading) return <div>LOADING</div>
-        console.log(error)
         return <Component {...props} />
     }
 }

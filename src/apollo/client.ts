@@ -1,11 +1,15 @@
 import { ApolloClient, ApolloLink, createHttpLink, InMemoryCache } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+import { createUploadLink } from 'apollo-upload-client'
 import { onError } from '@apollo/client/link/error'
 
 const httpLink = createHttpLink({
     uri: 'http://localhost:8000/graphql'
 })
-
+const uploadLink = createUploadLink({
+    uri: 'http://localhost:8000/graphql'
+    // fetchOptions: { credentials: 'include' }
+})
 const authLink = setContext((_, { headers }) => {
     // get the authentication token from local storage if it exists
     let token
@@ -35,7 +39,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 })
 
 const client = new ApolloClient({
-    link: ApolloLink.from([authLink, errorLink, httpLink]),
+    link: ApolloLink.from([authLink, errorLink, uploadLink, httpLink]),
     cache: new InMemoryCache()
 })
 

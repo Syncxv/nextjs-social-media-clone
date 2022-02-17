@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { ArchiveBox, ArrowLeft, UserCircle } from 'phosphor-react'
 import React from 'react'
 import Layout from '../../components/Layout'
+import { PostHeader } from '../../components/moluclues/Post'
 import withAuth from '../../components/withAtuh'
 
 interface Props {}
@@ -24,28 +25,13 @@ const SettingsButton: React.FC<{ leftIcon: any; path: string }> = ({ leftIcon, p
         </Button>
     )
 }
-export const SettingsHeader: React.FC<{ label: string }> = ({ label }) => {
-    const router = useRouter()
-    return (
-        <Wrap borderBottom="1px" borderColor="gray.200">
-            <IconButton
-                aria-label="Back"
-                backgroundColor="transparent"
-                icon={<ArrowLeft size={24} />}
-                onClick={() => router.back()}
-                _focus={{ boxShadow: 'none' }}
-                _hover={{ backgroundColor: '#80808059' }}
-            />
-            <Heading size="lg">{label}</Heading>
-        </Wrap>
-    )
-}
+
 const SettingsPage: React.FC<Props> = props => {
     return (
         <>
             <Layout>
                 <Flex direction="column">
-                    <SettingsHeader label="Settings" />
+                    <PostHeader label="Settings" />
                     <Flex direction="column">
                         <SettingsButton path="/profile" leftIcon={<UserCircle size={20} />}>
                             Profile

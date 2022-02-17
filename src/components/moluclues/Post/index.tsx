@@ -1,11 +1,11 @@
 import { useApolloClient } from '@apollo/client'
-import { Avatar, Box, Flex, IconButton, Image, Text, Wrap } from '@chakra-ui/react'
+import { Avatar, Box, Flex, Heading, IconButton, Image, Text, Wrap } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { Chat, Heart, Share } from 'phosphor-react'
+import { ArrowLeft, Chat, Heart, Share } from 'phosphor-react'
 import React, { memo, useState } from 'react'
 import { POST_LIKE_MUTATION } from '../../../apollo/queries/posts'
 import { userStore } from '../../../stores/user'
-import { CommentType, PostType } from '../../../types'
+import { PostType } from '../../../types'
 import Comment from './Comment'
 interface Props {
     post: PostType
@@ -108,16 +108,32 @@ const Post: React.FC<Props> = ({ post }) => {
     )
 }
 
+export const PostHeader: React.FC<{ label: string }> = ({ label }) => {
+    const router = useRouter()
+    return (
+        <Flex gap={5} mb={4} p={3} borderBottom="1px" borderColor="gray.200">
+            <IconButton
+                aria-label="Back"
+                backgroundColor="transparent"
+                borderRadius="50%"
+                icon={<ArrowLeft size={24} />}
+                onClick={() => router.back()}
+                _focus={{ boxShadow: 'none' }}
+                _hover={{ backgroundColor: '#80808059' }}
+            />
+            <Heading size="lg">{label}</Heading>
+        </Flex>
+    )
+}
+
 interface PostInfoProps {
     post: PostType
 }
 export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
     return (
         <>
+            <PostHeader label="Post" />
             <Box
-                _hover={{
-                    backgroundColor: '#EBEFFD'
-                }}
                 transition="500ms ease"
                 padding={4}
                 borderBottom="1px"

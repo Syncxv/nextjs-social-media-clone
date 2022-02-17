@@ -1,9 +1,7 @@
-import { Box, Heading, IconButton, Stack, Text, Wrap } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
-import { ArrowLeft } from 'phosphor-react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import React from 'react'
-import { SettingsHeader } from '.'
 import Layout from '../../components/Layout'
+import { PostHeader } from '../../components/moluclues/Post'
 
 interface Props {}
 
@@ -11,7 +9,7 @@ const SettingsAccount: React.FC<Props> = ({}) => {
     return (
         <Layout>
             <Stack>
-                <SettingsHeader label="Account" />
+                <PostHeader label="Account" />
                 <Box>
                     <Text>HEY</Text>
                 </Box>

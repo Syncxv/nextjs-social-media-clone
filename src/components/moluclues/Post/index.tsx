@@ -88,7 +88,9 @@ const Post: React.FC<Props> = ({ post }) => {
                     <Avatar name={post.owner.username} src={post.owner.avatar} />
                     <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
-                            <Text fontSize="lg">{post.owner.displayName}</Text>
+                            <Text fontWeight="500" fontSize="lg">
+                                {post.owner.displayName}
+                            </Text>
                             <Text color="gray.300" fontSize="sm">
                                 @{post.owner.username}
                             </Text>
@@ -109,20 +111,33 @@ const Post: React.FC<Props> = ({ post }) => {
     )
 }
 
-export const PostHeader: React.FC<{ label: string }> = ({ label }) => {
+export const PostHeader: React.FC<{ label: string; hideIcon?: boolean }> = ({ label, hideIcon }) => {
     const router = useRouter()
     return (
-        <Flex gap={5} mb={4} p={3} borderBottom="1px" borderColor="gray.200">
-            <IconButton
-                aria-label="Back"
-                backgroundColor="transparent"
-                borderRadius="50%"
-                icon={<ArrowLeft size={24} />}
-                onClick={() => router.back()}
-                _focus={{ boxShadow: 'none' }}
-                _hover={{ backgroundColor: '#80808059' }}
-            />
-            <Heading size="lg">{label}</Heading>
+        <Flex
+            gap={5}
+            mb={4}
+            p={4}
+            backgroundColor="rgba(255, 255, 255, 0.85)" // ILL ADD THEMES LATER BRO
+            backdropFilter="blur(12px)"
+            position="sticky"
+            top={0}
+            zIndex={5}
+        >
+            <Wrap>
+                {!hideIcon && (
+                    <IconButton
+                        aria-label="Back"
+                        backgroundColor="transparent"
+                        borderRadius="50%"
+                        icon={<ArrowLeft size={24} />}
+                        onClick={() => router.back()}
+                        _focus={{ boxShadow: 'none' }}
+                        _hover={{ backgroundColor: '#dadada58' }}
+                    />
+                )}
+                <Heading size="lg">{label}</Heading>
+            </Wrap>
         </Flex>
     )
 }
@@ -145,7 +160,9 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                     <Avatar name={post.owner.username} src={post.owner.avatar} />
                     <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
-                            <Text fontSize="lg">{post.owner.displayName}</Text>
+                            <Text fontWeight="500" fontSize="lg">
+                                {post.owner.displayName}
+                            </Text>
                             <Text color="gray.300" fontSize="sm">
                                 @{post.owner.username}
                             </Text>

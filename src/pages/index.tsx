@@ -2,7 +2,7 @@ import type { GetServerSideProps, NextPage } from 'next'
 import client from '../apollo/client'
 import { GET_POSTS_QUERY } from '../apollo/queries/posts'
 import Layout from '../components/Layout'
-import Post from '../components/moluclues/Post'
+import Post, { PostHeader } from '../components/moluclues/Post'
 import { PostType } from '../types'
 
 const Home: NextPage<{ posts: PostType[] }> = ({ posts }) => {
@@ -10,6 +10,7 @@ const Home: NextPage<{ posts: PostType[] }> = ({ posts }) => {
     return (
         <>
             <Layout>
+                <PostHeader hideIcon={true} label="Home" />
                 {posts.map((post, i) => (
                     <Post key={i} post={post} />
                 ))}

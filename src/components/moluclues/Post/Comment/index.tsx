@@ -77,7 +77,9 @@ const Comment: React.FC<Props> = ({ comment }) => {
                     <Avatar name={comment.author.username} src={comment.author.avatar} />
                     <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
-                            <Text fontSize="lg">{comment.author.displayName}</Text>
+                            <Text fontWeight="500" fontSize="lg">
+                                {comment.author.displayName}
+                            </Text>
                             <Text color="gray.300" fontSize="sm">
                                 @{comment.author.username}
                             </Text>

@@ -16,7 +16,7 @@ const useAuth = () => {
                     setError(true)
                     setLoading(false)
                 } else {
-                    setData(res as any)
+                    setData(store.user)
                     setLoading(false)
                 }
             })

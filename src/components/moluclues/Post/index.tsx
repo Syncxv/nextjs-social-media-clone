@@ -1,4 +1,4 @@
-import { useApolloClient, useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import {
     Avatar,
     Box,
@@ -17,35 +17,35 @@ import {
     Text,
     Textarea,
     useDisclosure,
+    useForceUpdate,
     Wrap
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { ArrowLeft, Chat, Heart, Share, Image as ImageIcon, Rectangle } from 'phosphor-react'
 import React, { memo, useRef, useState } from 'react'
 import { ADD_COMMENT_MUTATION } from '../../../apollo/mutations/comment'
-import { POST_LIKE_MUTATION } from '../../../apollo/queries/posts'
 import { useLikePost } from '../../../hooks/useLikePost'
-import { userStore } from '../../../stores/user'
 import { PostType, UserType } from '../../../types'
 import Comment from './Comment'
 interface Props {
     post: PostType
 }
-const ReplyModal: React.FC<{ isOpen: boolean; onClose: any; user: UserType; post: PostType }> = ({
-    isOpen,
-    onClose,
-    user,
-    post
-}) => {
+const ReplyModal: React.FC<{
+    isOpen: boolean
+    onClose: any
+    user: UserType
+    post: PostType
+    forceUpdate: any
+}> = ({ isOpen, onClose, user, post, forceUpdate }) => {
     const [submitComment] = useMutation<{ addComment: PostType }>(ADD_COMMENT_MUTATION, {
         onCompleted: res => console.log(res)
     })
     const [image, setImage] = useState<File | null>(null)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-    const reply = () => {
+    const reply = async () => {
         console.log(textareaRef.current?.value)
-        submitComment({
+        await submitComment({
             variables: { postid: post._id, addImage: image, addContent: textareaRef.current?.value }
         })
     }
@@ -125,7 +125,12 @@ const ReplyModal: React.FC<{ isOpen: boolean; onClose: any; user: UserType; post
                         color="white"
                         backgroundColor="rgba(88, 77, 255, 1)"
                         borderRadius={30}
-                        onClick={reply}
+                        onClick={() => {
+                            reply().then(() => {
+                                forceUpdate()
+                                onClose()
+                            })
+                        }}
                         _focus={{ boxShadow: 'none' }}
                         _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.9)' }}
                     >
@@ -139,6 +144,7 @@ const ReplyModal: React.FC<{ isOpen: boolean; onClose: any; user: UserType; post
 export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ width, item }) => {
     const { handleLike, isLiked, likes, user } = useLikePost(item)
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const forceUpdate = useForceUpdate()
     return (
         <>
             <Flex
@@ -182,7 +188,7 @@ export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ widt
                     _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
                 />
             </Flex>
-            <ReplyModal post={item} isOpen={isOpen} onClose={onClose} user={user} />
+            <ReplyModal forceUpdate={forceUpdate} post={item} isOpen={isOpen} onClose={onClose} user={user} />
         </>
     )
 })
@@ -262,8 +268,9 @@ export const PostHeader: React.FC<{ label: string; hideIcon?: boolean }> = ({ la
 
 interface PostInfoProps {
     post: PostType
+    forceUpdate: any
 }
-export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
+export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
     const { handleLike, isLiked, likes, user } = useLikePost(post)
     const { isOpen, onOpen, onClose } = useDisclosure()
     return (
@@ -289,7 +296,7 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                         </Flex>
                     </Wrap>
                     <Flex direction="column" width="100%">
-                        <Wrap borderBottom="1px" borderColor="gray.200">
+                        <Wrap pb={3} borderBottom="1px" borderColor="gray.200">
                             <Wrap ml={2} fontSize="1.3rem" className="content">
                                 <Text>{post.content}</Text>
                             </Wrap>
@@ -314,48 +321,50 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post }) => {
                             </Flex>
                         </Flex>
                     </Flex>
-                    <Flex
-                        onClick={e => e.stopPropagation()}
-                        padding="0 .5rem"
-                        width="100%"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        gap={4}
-                    >
-                        <IconButton
-                            aria-label="Like"
-                            backgroundColor="transparent"
-                            icon={isLiked ? <Heart weight="fill" color="rgba(255, 19, 97, 1)" /> : <Heart />}
-                            borderRadius="50%"
-                            _focus={{ boxShadow: 'none' }}
-                            _hover={{ backgroundColor: 'rgba(255, 19, 97, 0.37)' }}
-                            onClick={handleLike}
-                        />
-                        <IconButton
-                            aria-label="Reply"
-                            backgroundColor="transparent"
-                            icon={<Chat />}
-                            borderRadius="50%"
-                            onClick={onOpen}
-                            _focus={{ boxShadow: 'none' }}
-                            _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
-                        />
-                        <IconButton
-                            aria-label="Share"
-                            backgroundColor="transparent"
-                            icon={<Share />}
-                            borderRadius="50%"
-                            _focus={{ boxShadow: 'none' }}
-                            _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
-                        />
-                    </Flex>
-                    <ReplyModal post={post} isOpen={isOpen} onClose={onClose} user={user} />
                 </Flex>
             </Box>
+            <Flex
+                borderBottom="1px"
+                borderColor="gray.200"
+                onClick={e => e.stopPropagation()}
+                width="100%"
+                justifyContent="space-between"
+                alignItems="center"
+                gap={4}
+                p={3}
+            >
+                <IconButton
+                    aria-label="Like"
+                    backgroundColor="transparent"
+                    icon={isLiked ? <Heart weight="fill" color="rgba(255, 19, 97, 1)" /> : <Heart />}
+                    borderRadius="50%"
+                    _focus={{ boxShadow: 'none' }}
+                    _hover={{ backgroundColor: 'rgba(255, 19, 97, 0.37)' }}
+                    onClick={handleLike}
+                />
+                <IconButton
+                    aria-label="Reply"
+                    backgroundColor="transparent"
+                    icon={<Chat />}
+                    borderRadius="50%"
+                    onClick={onOpen}
+                    _focus={{ boxShadow: 'none' }}
+                    _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
+                />
+                <IconButton
+                    aria-label="Share"
+                    backgroundColor="transparent"
+                    icon={<Share />}
+                    borderRadius="50%"
+                    _focus={{ boxShadow: 'none' }}
+                    _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
+                />
+            </Flex>
             <Box className="comments">
                 {Boolean(post.comments.length) &&
                     post.comments.map((comment, i) => <Comment key={i} comment={comment} />)}
             </Box>
+            <ReplyModal forceUpdate={forceUpdate} post={post} isOpen={isOpen} onClose={onClose} user={user} />
         </>
     )
 }

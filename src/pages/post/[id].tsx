@@ -1,11 +1,8 @@
-import { useApolloClient } from '@apollo/client'
-import { Box, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
-import { GET_POSTS_QUERY, GET_POST_QUERY } from '../../apollo/queries/posts'
+import React, { useState } from 'react'
 import Layout from '../../components/Layout'
 import { PostInfo } from '../../components/moluclues/Post'
-import withAuth from '../../components/withAtuh'
 import { useGetPostData } from '../../hooks/useGetPost'
 
 interface Props {}
@@ -14,9 +11,11 @@ const PostInfoPage: React.FC<Props> = () => {
     const {
         query: { id }
     } = useRouter()
-    const { data, loading } = useGetPostData(id as string)
+    const [i, setI] = useState(0)
+    const { data, loading, client } = useGetPostData(id as string, i)
+    const forceUpdate = () => setI(i + 1)
     if (loading) return <Text>LOADING</Text>
-    return <Layout>{data ? <PostInfo post={data} /> : <Text>Bruh</Text>}</Layout>
+    return <Layout>{data ? <PostInfo forceUpdate={forceUpdate} post={data} /> : <Text>Bruh</Text>}</Layout>
 }
 
-export default withAuth(PostInfoPage)
+export default PostInfoPage

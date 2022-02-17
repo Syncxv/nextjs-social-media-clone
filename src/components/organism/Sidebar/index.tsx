@@ -1,7 +1,7 @@
-import { Avatar, Box, Button, Flex, Heading, Spacer, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading, Text, useColorModeValue } from '@chakra-ui/react'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { ChatCircle, DotsThree, Gear, Heart, House, UserCircle } from 'phosphor-react'
+import { ChatCircle, DotsThree, Gear, House, UserCircle } from 'phosphor-react'
 import React from 'react'
 import { userStore } from '../../../stores/user'
 

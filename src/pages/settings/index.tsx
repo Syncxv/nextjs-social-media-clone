@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Heading, IconButton, Wrap } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { ArchiveBox, ArrowLeft, UserCircle } from 'phosphor-react'
+import { ArchiveBox, UserCircle } from 'phosphor-react'
 import React from 'react'
 import Layout from '../../components/Layout'
 import { PostHeader } from '../../components/moluclues/Post'

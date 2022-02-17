@@ -5,7 +5,7 @@ import { Heart, Share } from 'phosphor-react'
 import { useState } from 'react'
 import { COMMENT_LIKE_MUTATION } from '../../../../apollo/queries/comment'
 import { userStore } from '../../../../stores/user'
-import { CommentType, PostType } from '../../../../types'
+import { CommentType } from '../../../../types'
 interface Props {
     comment: CommentType
 }

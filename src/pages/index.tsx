@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import type { GetServerSideProps, NextPage } from 'next'
 import client from '../apollo/client'
 import { GET_POSTS_QUERY } from '../apollo/queries/posts'

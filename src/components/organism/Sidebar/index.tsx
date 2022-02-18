@@ -63,7 +63,7 @@ const SideBar: NextPage<Props> = () => {
                         <SideButton path="/messages" leftIcon={<ChatCircle size={20} />}>
                             Messages
                         </SideButton>
-                        <SideButton path={`/profile/${user._id}`} leftIcon={<UserCircle size={20} />}>
+                        <SideButton path={`/profile/${user.username}`} leftIcon={<UserCircle size={20} />}>
                             Profile
                         </SideButton>
                     </Flex>

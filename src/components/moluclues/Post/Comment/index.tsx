@@ -71,10 +71,16 @@ const Comment: React.FC<Props> = ({ comment }) => {
                 borderBottom="1px"
                 borderColor="gray.200"
                 cursor="pointer"
-                onClick={() => router.push(`/comment/${comment._id}`)}
             >
                 <Flex gap={2}>
-                    <Avatar name={comment.author.username} src={comment.author.avatar} />
+                    <Avatar
+                        onClick={e => {
+                            e.stopPropagation()
+                            router.push(`/profile/${comment.author.username}`)
+                        }}
+                        name={comment.author.username}
+                        src={comment.author.avatar}
+                    />
                     <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
                             <Text fontWeight="500" fontSize="lg">

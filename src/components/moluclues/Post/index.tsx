@@ -209,7 +209,14 @@ const Post: React.FC<Props> = ({ post }) => {
                 onClick={() => router.push(`/post/${post._id}`)}
             >
                 <Flex gap={2}>
-                    <Avatar name={post.owner.username} src={post.owner.avatar} />
+                    <Avatar
+                        onClick={e => {
+                            e.stopPropagation()
+                            router.push(`/profile/${post.owner.username}`)
+                        }}
+                        name={post.owner.username}
+                        src={post.owner.avatar}
+                    />
                     <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
                             <Text fontWeight="500" fontSize="lg">
@@ -273,6 +280,7 @@ interface PostInfoProps {
 export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
     const { handleLike, isLiked, likes, user } = useLikePost(post)
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const router = useRouter()
     return (
         <>
             <PostHeader label="Post" />
@@ -285,7 +293,14 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
             >
                 <Flex direction="column" gap={2}>
                     <Wrap>
-                        <Avatar name={post.owner.username} src={post.owner.avatar} />
+                        <Avatar
+                            onClick={e => {
+                                e.stopPropagation()
+                                router.push(`/profile/${post.owner.username}`)
+                            }}
+                            name={post.owner.username}
+                            src={post.owner.avatar}
+                        />
                         <Flex className="user" alignItems="center" gap={2}>
                             <Text fontWeight="500" fontSize="lg">
                                 {post.owner.displayName}

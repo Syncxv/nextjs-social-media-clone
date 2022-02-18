@@ -8,7 +8,7 @@ export const useLikePost = (item: PostType) => {
     const client = useApolloClient()
     const user = userStore(state => state.user)!
     const [isLiked, setLiked] = useState(user ? item.likedUsers.includes(user!._id) : false)
-    const [likes, setLikes] = useState(item.likedUsers.length)
+    const [likes, setLikes] = useState(item.likes)
     const handleLike = async () => {
         const { data } = await client.mutate<{ likePost: { post: PostType } }>({
             mutation: POST_LIKE_MUTATION,

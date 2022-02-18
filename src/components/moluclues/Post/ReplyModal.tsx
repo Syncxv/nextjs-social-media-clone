@@ -118,6 +118,8 @@ export const ReplyThingy: React.FC<{ user: UserType; post: PostType; forceUpdate
                         onClick={() => {
                             reply().then(() => {
                                 forceUpdate()
+                                setImage(null)
+                                if (textareaRef.current) textareaRef.current.value = ''
                             })
                         }}
                         _focus={{ boxShadow: 'none' }}

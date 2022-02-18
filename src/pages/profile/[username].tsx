@@ -13,8 +13,9 @@ const ProfilePage: NextPage<Props> = ({}) => {
     const { loading, data, error } = useQuery<{ findUser: UserType }>(GET_USER_BY_USERNAME_QUERY, {
         variables: { username: router.query.username }
     })
+    console.log(data)
     if (loading) return <div>Loading</div>
-    if (!data || error) return <div>Not found eh</div>
+    if (!data?.findUser || error) return <div>Not found eh</div>
     return (
         <Layout>
             <div>{data.findUser.username}</div>

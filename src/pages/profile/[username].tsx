@@ -9,6 +9,7 @@ import { GET_USER_BY_USERNAME_QUERY } from '../../apollo/queries/user'
 import Layout from '../../components/Layout'
 import { PostHeader } from '../../components/moluclues/Post'
 import withAuth from '../../components/withAtuh'
+import { useFollow } from '../../hooks/useFollow'
 import { userStore } from '../../stores/user'
 import { UserType } from '../../types'
 
@@ -22,15 +23,12 @@ const ProfilePage: NextPage<Props> = ({}) => {
     const { loading, data, error } = useQuery<{ findUser: UserType }>(GET_USER_BY_USERNAME_QUERY, {
         variables: { username: router.query.username }
     })
+    const { unfollow, follow, followers, isFollowing } = useFollow(data?.findUser)
     const store = userStore()!
-    console.log(data)
     if (loading) return <div>Loading</div>
     if (!data?.findUser || error) return <div>Not found eh</div>
     const { findUser: user } = data
     const isCurrentUser = user._id === store.user!._id
-    const follow = () => {
-        console.log('HEHEHE HA')
-    }
     return (
         <Layout>
             <PostHeader label={user.displayName} />
@@ -63,9 +61,15 @@ const ProfilePage: NextPage<Props> = ({}) => {
                         <Button
                             colorScheme="blue"
                             _focus={{ boxShadow: 'none' }}
-                            onClick={() => (isCurrentUser ? router.push('/settings/profile') : follow())}
+                            onClick={() =>
+                                isCurrentUser
+                                    ? router.push('/settings/profile')
+                                    : isFollowing
+                                    ? unfollow()
+                                    : follow()
+                            }
                         >
-                            {isCurrentUser ? 'Edit Profile' : 'Follow'}
+                            {isCurrentUser ? 'Edit Profile' : isFollowing ? 'Unfollow' : 'Follow'}
                         </Button>
                     </Flex>
                     <Box>
@@ -73,7 +77,7 @@ const ProfilePage: NextPage<Props> = ({}) => {
                         <Text mb={4} fontSize="md" color="gray.500">
                             @{user.username}
                         </Text>
-                        <Text>{user.followers.length} Followers</Text>
+                        <Text>{followers} Followers</Text>
                     </Box>
                 </Flex>
             </Box>

@@ -1,146 +1,26 @@
-import { useMutation } from '@apollo/client'
 import {
     Avatar,
     Box,
-    Button,
-    CloseButton,
     Flex,
     Heading,
     IconButton,
     Image,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalOverlay,
     Text,
-    Textarea,
     useDisclosure,
     useForceUpdate,
     Wrap
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { ArrowLeft, Chat, Heart, Share, Image as ImageIcon, Rectangle } from 'phosphor-react'
-import React, { memo, useRef, useState } from 'react'
-import { ADD_COMMENT_MUTATION } from '../../../apollo/mutations/comment'
+import { ArrowLeft, Chat, Heart, Share } from 'phosphor-react'
+import React, { memo } from 'react'
 import { useLikePost } from '../../../hooks/useLikePost'
-import { PostType, UserType } from '../../../types'
+import { PostType } from '../../../types'
 import Comment from './Comment'
+import { ReplyModal, ReplyThingy } from './ReplyModal'
 interface Props {
     post: PostType
 }
-const ReplyModal: React.FC<{
-    isOpen: boolean
-    onClose: any
-    user: UserType
-    post: PostType
-    forceUpdate: any
-}> = ({ isOpen, onClose, user, post, forceUpdate }) => {
-    const [submitComment] = useMutation<{ addComment: PostType }>(ADD_COMMENT_MUTATION, {
-        onCompleted: res => console.log(res)
-    })
-    const [image, setImage] = useState<File | null>(null)
-    const fileInputRef = useRef<HTMLInputElement | null>(null)
-    const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-    const reply = async () => {
-        console.log(textareaRef.current?.value)
-        await submitComment({
-            variables: { postid: post._id, addImage: image, addContent: textareaRef.current?.value }
-        })
-    }
-    return (
-        <Modal size="xl" isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-                <ModalCloseButton left={3} _focus={{ boxShadow: 'none' }} />
-                <ModalBody mt={10}>
-                    <Flex gap={2}>
-                        <Avatar name={user.username} src={user.avatar} />
 
-                        <Flex direction="column">
-                            <Textarea
-                                ref={textareaRef}
-                                placeholder="Reply ong on me"
-                                size="sm"
-                                resize="none"
-                                border="none"
-                                _focus={{ boxShadow: 'none' }}
-                            />
-                            <Wrap position="relative">
-                                {image !== null && (
-                                    <>
-                                        <CloseButton
-                                            position="absolute"
-                                            top={3}
-                                            left={3}
-                                            backgroundColor="#ffffffa9"
-                                            borderRadius="50%"
-                                            onClick={() => setImage(null)}
-                                            _focus={{ boxShadow: 'none' }}
-                                            _hover={{
-                                                backgroundColor: '#ffffffd5'
-                                            }}
-                                        />
-                                        <Image
-                                            borderRadius={16}
-                                            src={URL.createObjectURL(image)}
-                                            alt="wel["
-                                        />
-                                    </>
-                                )}
-                            </Wrap>
-                        </Flex>
-                    </Flex>
-                </ModalBody>
-
-                <ModalFooter justifyContent="space-between">
-                    <Wrap marginLeft="3.5rem">
-                        <IconButton
-                            aria-label="Select Image"
-                            backgroundColor="transparent"
-                            icon={<ImageIcon />}
-                            borderRadius="50%"
-                            onClick={() => fileInputRef.current?.click()}
-                            _focus={{ boxShadow: 'none' }}
-                            _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.37)' }}
-                        />
-                        <input
-                            onChange={e => setImage(e.target.files?.length ? e.target.files[0] : null)}
-                            type="file"
-                            accept="image/png, image/jpeg"
-                            style={{ display: 'none' }}
-                            ref={fileInputRef}
-                        />
-                        <IconButton
-                            aria-label="Select Image"
-                            backgroundColor="transparent"
-                            icon={<Rectangle />}
-                            borderRadius="50%"
-                            _focus={{ boxShadow: 'none' }}
-                            _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.37)' }}
-                        />
-                    </Wrap>
-                    <Button
-                        color="white"
-                        backgroundColor="rgba(88, 77, 255, 1)"
-                        borderRadius={30}
-                        onClick={() => {
-                            reply().then(() => {
-                                forceUpdate()
-                                onClose()
-                            })
-                        }}
-                        _focus={{ boxShadow: 'none' }}
-                        _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.9)' }}
-                    >
-                        Reply
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
-    )
-}
 export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ width, item }) => {
     const { handleLike, isLiked, likes, user } = useLikePost(item)
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -375,6 +255,7 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
                     _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
                 />
             </Flex>
+            <ReplyThingy forceUpdate={forceUpdate} post={post} user={user} />
             <Box className="comments">
                 {Boolean(post.comments.length) &&
                     post.comments.map((comment, i) => <Comment key={i} comment={comment} />)}

@@ -90,3 +90,41 @@ export const POST_LIKE_MUTATION = gql`
         }
     }
 `
+
+export const GET_USER_POSTS = gql`
+    query GetUserPosts($userId: String!, $limit: Float) {
+        getUserPosts(user_id: $userId, limit: $limit) {
+            _id
+            createdAt
+            updatedAt
+            content
+            attachment
+            title
+            likedUsers
+            owner {
+                _id
+                updatedAt
+                createdAt
+                username
+                displayName
+                avatar
+                isStaff
+            }
+            comments {
+                _id
+                content
+                attachment
+                updatedAt
+                createdAt
+                likedUsers
+                author {
+                    username
+                    displayName
+                    avatar
+                    isStaff
+                }
+                updatedAt
+            }
+        }
+    }
+`

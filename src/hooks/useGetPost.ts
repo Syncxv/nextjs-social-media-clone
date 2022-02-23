@@ -1,6 +1,7 @@
 import { ApolloClient, useApolloClient } from '@apollo/client'
 import { useState, useEffect } from 'react'
 import { GET_POSTS_QUERY, GET_POST_QUERY } from '../apollo/queries/posts'
+import { _postStore } from '../stores/post'
 import { PostType } from '../types'
 
 interface getPostDataReturnType {
@@ -17,14 +18,10 @@ export const useGetPostData = (id: string, refresh: number): getPostDataReturnTy
     const [data, setData] = useState<PostType | null | undefined>(null)
     const [error, setError] = useState<string | null>(null)
     const client = useApolloClient()
+    const postStore = _postStore()
     useEffect(() => {
-        const cachedData = client.readQuery<GetPostsQueryResponseIdkMAN>({ query: GET_POSTS_QUERY })
-        if (cachedData) {
-            setLoading(false)
-            setData(cachedData.getPosts.find(s => s._id === id))
-            console.log('SENT CAHCHED DATA')
-            return
-        }
+        const post = postStore.getPost(id)
+        if (post) return setData(post)
         client
             .query<{ getPost: PostType; fetchPolicy: 'network-only' }>({
                 query: GET_POST_QUERY,
@@ -33,6 +30,7 @@ export const useGetPostData = (id: string, refresh: number): getPostDataReturnTy
             .then(({ data }) => {
                 setLoading(false)
                 setData(data.getPost)
+                postStore.updatePost(data.getPost)
                 console.log('SENT FETCHED DATA')
             })
             .catch(err => {

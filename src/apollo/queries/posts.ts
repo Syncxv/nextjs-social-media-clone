@@ -7,6 +7,7 @@ export const GET_POSTS_QUERY = gql`
             title
             content
             likes
+            commentCount
             owner {
                 _id
                 username
@@ -40,6 +41,7 @@ export const GET_POST_QUERY = gql`
             attachment
             likes
             likedUsers
+            commentCount
             createdAt
             updatedAt
             owner {
@@ -101,6 +103,7 @@ export const GET_USER_POSTS = gql`
             attachment
             title
             likedUsers
+            commentCount
             owner {
                 _id
                 updatedAt

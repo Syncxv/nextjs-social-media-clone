@@ -25,3 +25,27 @@ export const COMMENT_LIKE_MUTATION = gql`
         }
     }
 `
+
+export const GET_COMMENTS_AFTER = gql`
+    query GetCommentsAfter($after: String!, $postId: String!) {
+        getCommentsAfter(after_id: $after, post_id: $postId) {
+            _id
+            updatedAt
+            createdAt
+            likes
+            content
+            attachment
+            author {
+                _id
+                isStaff
+                isStaff
+                avatar
+                email
+                displayName
+                username
+                updatedAt
+                createdAt
+            }
+        }
+    }
+`

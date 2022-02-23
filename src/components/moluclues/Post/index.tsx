@@ -16,6 +16,7 @@ import React, { memo } from 'react'
 import { useLikePost } from '../../../hooks/useLikePost'
 import { PostType } from '../../../types'
 import Comment from './Comment'
+import CommentList from './Comment/CommentList'
 import { ReplyModal, ReplyThingy } from './ReplyModal'
 interface Props {
     post: PostType
@@ -256,10 +257,7 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
                 />
             </Flex>
             <ReplyThingy forceUpdate={forceUpdate} post={post} user={user} />
-            <Box className="comments">
-                {Boolean(post.comments.length) &&
-                    post.comments.map((comment, i) => <Comment key={i} comment={comment} />)}
-            </Box>
+            <CommentList post={post} />
             <ReplyModal forceUpdate={forceUpdate} post={post} isOpen={isOpen} onClose={onClose} user={user} />
         </>
     )

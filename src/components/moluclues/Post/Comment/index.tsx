@@ -13,8 +13,8 @@ interface Props {
 const CommentAction: React.FC<{ width: string; comment: CommentType }> = ({ width, comment }) => {
     const client = useApolloClient()
     const user = userStore(state => state.user)
-    const [isLiked, setLiked] = useState(user ? comment.likedUsers.includes(user!._id) : false)
-    const [likes, setLikes] = useState(comment.likedUsers.length)
+    const [isLiked, setLiked] = useState(true)
+    const [likes, setLikes] = useState(comment.likes)
     const handleLike = async () => {
         const { data } = await client.mutate<{ likeComment: { comment: CommentType } }>({
             mutation: COMMENT_LIKE_MUTATION,

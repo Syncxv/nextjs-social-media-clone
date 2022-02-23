@@ -12,7 +12,9 @@ import {
     ModalFooter,
     IconButton,
     Button,
-    Image
+    Image,
+    Fade,
+    Box
 } from '@chakra-ui/react'
 import { Rectangle, Image as ImageIcon } from 'phosphor-react'
 import { useRef, useState } from 'react'
@@ -38,12 +40,13 @@ export const ReplyThingy: React.FC<{ user: UserType; post: PostType; forceUpdate
     return (
         <>
             <Flex
+                alignItems="center"
+                direction={isOpen ? 'column' : 'row'}
                 borderBottom="1px"
                 borderColor="gray.200"
                 py={2}
                 px={4}
                 width="100%"
-                direction={isOpen ? 'column' : 'row'}
             >
                 <Flex width="100%" gap={2}>
                     <Avatar name={user.username} src={user.avatar} />
@@ -81,9 +84,9 @@ export const ReplyThingy: React.FC<{ user: UserType; post: PostType; forceUpdate
                         </Wrap>
                     </Flex>
                 </Flex>
-                <Flex justifyContent="space-between">
-                    {isOpen && (
-                        <Wrap marginLeft="3.5rem">
+                <Flex width="100%" justifyContent="space-between">
+                    <Fade style={{ width: 'auto' }} delay={0.2} in={isOpen}>
+                        <Box marginLeft="3.5rem">
                             <IconButton
                                 aria-label="Select Image"
                                 backgroundColor="transparent"
@@ -109,24 +112,26 @@ export const ReplyThingy: React.FC<{ user: UserType; post: PostType; forceUpdate
                                 _focus={{ boxShadow: 'none' }}
                                 _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.37)' }}
                             />
-                        </Wrap>
-                    )}
-                    <Button
-                        color="white"
-                        backgroundColor="rgba(88, 77, 255, 1)"
-                        borderRadius={30}
-                        onClick={() => {
-                            reply().then(() => {
-                                forceUpdate()
-                                setImage(null)
-                                if (textareaRef.current) textareaRef.current.value = ''
-                            })
-                        }}
-                        _focus={{ boxShadow: 'none' }}
-                        _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.9)' }}
-                    >
-                        Reply
-                    </Button>
+                        </Box>
+                    </Fade>
+                    <Flex alignItems="center">
+                        <Button
+                            color="white"
+                            backgroundColor="rgba(88, 77, 255, 1)"
+                            borderRadius={30}
+                            onClick={() => {
+                                reply().then(() => {
+                                    forceUpdate()
+                                    setImage(null)
+                                    if (textareaRef.current) textareaRef.current.value = ''
+                                })
+                            }}
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(88, 77, 255, 0.9)' }}
+                        >
+                            Reply
+                        </Button>
+                    </Flex>
                 </Flex>
             </Flex>
         </>

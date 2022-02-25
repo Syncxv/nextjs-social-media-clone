@@ -1,9 +1,14 @@
-export interface Follower {
+export interface Timestamp {
+    createdAt: string
+    updatedAt: string
+}
+
+export interface Follower extends Timestamp {
     _id: string
     username: string
 }
 
-export interface UserType {
+export interface UserType extends Timestamp {
     _id: string
     username: string
     displayName: string
@@ -49,7 +54,7 @@ export enum Fields {
     UNKOWN = 'unkown'
 }
 
-export interface CommentType {
+export interface CommentType extends Timestamp {
     _id: string
     content: string
     attachment?: string
@@ -58,7 +63,7 @@ export interface CommentType {
     author: UserType
 }
 
-export interface PostType {
+export interface PostType extends Timestamp {
     _id: string
     title: string
     content: string
@@ -70,15 +75,23 @@ export interface PostType {
     comments: CommentType[]
 }
 
-export interface ChannelType {
+export interface ChannelType extends Timestamp {
     _id: string
     members: UserType[]
 }
 
-export interface MessageType {
+export interface MessageType extends Timestamp {
     _id: string
     content: string
+    author: UserType
     channel: ChannelType
 }
+
+export enum MESSAGE_STATES {
+    SENDING = 'SENDING',
+    SENT = 'SENT',
+    ERROR = 'ERROR'
+}
+
 export const deafultPfp = 'https://i.imgur.com/JUVFPMN.png'
 export const apiUrl = 'http://localhost:8000/'

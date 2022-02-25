@@ -71,3 +71,4 @@ export interface PostType {
 }
 
 export const deafultPfp = 'https://i.imgur.com/JUVFPMN.png'
+export const apiUrl = 'http://localhost:8000/'

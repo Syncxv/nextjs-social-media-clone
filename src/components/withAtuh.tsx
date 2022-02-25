@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
+import { _socketStore } from '../stores/socket'
 import { userStore } from '../stores/user'
 import { UserType } from '../types'
 const useAuth = () => {
-    const store = userStore()
+    const usrStore = userStore()
+    const socketStore = _socketStore()
     const [loading, setLoading] = useState(true)
     useEffect(() => {
-        store
-            .initalize()
+        const auth = async () => {
+            await usrStore.initalize()
+            await socketStore.openConnection()
+        }
+        auth()
             .then(res => {
                 setLoading(false)
             })
@@ -20,15 +25,18 @@ const useAuth = () => {
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    return { loading, store }
+    return { loading, stores: { usrStore, socketStore } }
 }
 const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {
     // eslint-disable-next-line react/display-name
     return (props: any) => {
-        const { loading, store } = useAuth()
+        const {
+            loading,
+            stores: { usrStore, socketStore }
+        } = useAuth()
         const router = useRouter()
         if (loading) return <div>LOADING</div>
-        if (store.user === null) {
+        if (usrStore.user === null || socketStore.socket === null) {
             router.push('/login')
             return <div>ERROR</div>
         }

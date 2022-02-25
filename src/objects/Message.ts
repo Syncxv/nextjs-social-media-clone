@@ -21,7 +21,7 @@ export class Message extends GenericObject {
 
     updateSelf(message: Message) {
         const messageStore = _messageStore.getState()
-        messageStore.updateMessage(message!.getChannelId(), message!)
+        messageStore.updateMessage(this._id, message!)
     }
 
     static new(
@@ -31,7 +31,7 @@ export class Message extends GenericObject {
         state: MESSAGE_STATES = MESSAGE_STATES.SENDING
     ) {
         return new Message(
-            { _id: 'hehe', author, channel, content, createdAt: Date(), updatedAt: Date() },
+            { _id: Date.now().toString(), author, channel, content, createdAt: Date(), updatedAt: Date() },
             state
         )
     }

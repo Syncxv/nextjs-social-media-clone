@@ -38,7 +38,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
     const messageStore = _messageStore(state => state)
     const user = userStore(state => state.user)!
-    const [sendMessage] = useMutation<{ createMessage: MessageType }>(CREATE_MESSAGE_MUTATION)
+    const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
     const channel = channels.find(s => s._id === router.query.channel_id)
     useEffect(() => {
         messageStore.initalize(
@@ -73,33 +73,29 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                     </Flex>
                     <Flex
                         overflowY="auto"
-                        maxHeight="100vh"
+                        maxHeight="85vh"
                         minHeight="85vh"
                         px={4}
                         mb={5}
-                        justifyContent="flex-end"
                         alignItems="flex-end"
                         flexGrow="1"
                         direction="column"
                         gap={2}
                     >
-                        {messages &&
-                            Object.values(messages).map((msg, i) => (
-                                <MessageComponent key={i} message={msg} />
-                            ))}
+                        {messages && messages.map((msg, i) => <MessageComponent key={i} message={msg} />)}
                     </Flex>
                     <form
                         onSubmit={async e => {
                             e.preventDefault()
                             if (!inputRef.current?.value.length) return
+                            console.log('BEFORE', Object.values(messageStore.channels[channel._id].messages))
                             const heheMessage = Message.new(user, channel, inputRef.current!.value)
                             messageStore.addMessage(channel._id, heheMessage)
                             try {
                                 const { data } = await sendMessage({
                                     variables: { channelId: channel._id, content: inputRef.current?.value }
                                 })
-                                await new Promise(res => setTimeout(() => res(true), 2000))
-                                const message = data!.createMessage
+                                const message = data!.createMessage.message
                                 heheMessage.updateSelf(
                                     Message.new(
                                         message.author,
@@ -113,6 +109,8 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                                 heheMessage.state = MESSAGE_STATES.ERROR
                                 heheMessage.updateSelf(heheMessage)
                             }
+                            console.log('AFTER', Object.values(messageStore.channels[channel._id].messages))
+                            inputRef.current!.value = ''
                         }}
                     >
                         <Flex px={1} alignItems="center">

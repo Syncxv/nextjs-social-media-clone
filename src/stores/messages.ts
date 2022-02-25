@@ -4,10 +4,10 @@ import { Message } from '../objects/Message'
 import { ChannelType } from '../types'
 
 export interface MessageStoreHehe {
-    channels: { [key: string]: { channel: ChannelType; messages: { [key: string]: Message } } }
+    channels: { [key: string]: { channel: ChannelType; messages: Message[] } }
     addMessage: (id: string, message: Message) => void
     initalize: (channel: ChannelType, messages: Message[]) => void
-    updateMessage: (id: string, message: Message) => void
+    updateMessage: (prevMessageId: string, message: Message) => void
 }
 
 export const _messageStore = create<MessageStoreHehe>(set => ({
@@ -16,22 +16,22 @@ export const _messageStore = create<MessageStoreHehe>(set => ({
         set(
             produce((state: MessageStoreHehe) => {
                 state.channels[channel._id] = {} as any
-                state.channels[channel._id].messages = {} as any
                 state.channels[channel._id].channel = channel
-                messages.forEach(s => (state.channels[channel._id].messages[s._id] = s))
+                state.channels[channel._id].messages = messages
             })
         ),
     addMessage: (id: string, message: Message) =>
         set(
             produce((state: MessageStoreHehe) => {
-                const bruh = state.channels[id]
-                bruh.messages[message._id] = message
+                state.channels[id].messages.push(message)
             })
         ),
-    updateMessage: (id: string, message: Message) =>
+    updateMessage: (prevMessageId: string, message: Message) =>
         set(
             produce((state: MessageStoreHehe) => {
-                state.channels[id].messages[message._id] = message
+                const channel = state.channels[message.getChannelId()]
+                const idx = channel.messages.map(s => s._id).indexOf(prevMessageId)
+                channel.messages[idx] = message
             })
         )
 }))

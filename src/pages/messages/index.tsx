@@ -1,4 +1,4 @@
-import { Avatar, Box, Center, Flex, Text } from '@chakra-ui/react'
+import { Avatar, Box, Center, Flex, Heading, IconButton, Text } from '@chakra-ui/react'
 import { GetServerSideProps } from 'next'
 import React from 'react'
 import client from '../../apollo/client'
@@ -9,41 +9,45 @@ import { _socketStore } from '../../stores/socket'
 import { userStore } from '../../stores/user'
 import withAuth from '../../components/withAtuh'
 import { useRouter } from 'next/router'
+import { Envelope, EnvelopeOpen } from 'phosphor-react'
 interface Props {
     channels: ChannelType[]
 }
 
 const Channel: React.FC<{ channel: ChannelType }> = ({ channel }) => {
     const router = useRouter()
+    const selected = router.query.channel_id === channel._id
     return (
         <>
-            <Flex
-                width="100%"
-                alignItems="center"
-                borderBottom="1px"
-                borderColor="gray.200"
-                transition="all 200ms ease"
-                gap={2}
-                px={5}
-                py={7}
-                onClick={() => router.push(`/messages/${channel._id}`)}
-                _hover={{
-                    cursor: 'pointer',
-                    backgroundColor: '#EBEFFD'
-                }}
-            >
-                <Avatar name={channel.members[0].username} src={channel.members[0].avatar} />
-                <Flex direction="column" width="100%">
-                    <Flex className="user" alignItems="center" gap={2}>
-                        <Text fontWeight="500" fontSize="lg">
-                            {channel.members[0].displayName}
-                        </Text>
-                        <Text color="gray.300" fontSize="sm">
-                            @{channel.members[0].username}
-                        </Text>
+            <Box width="100%" borderBottom="1px" borderColor="gray.200">
+                <Flex
+                    width="100%"
+                    alignItems="center"
+                    transition="all 200ms ease"
+                    borderRight={selected ? '5px solid' : '0px'}
+                    borderColor="blue.600"
+                    gap={2}
+                    px={5}
+                    py={7}
+                    onClick={() => router.push(`/messages/${channel._id}`)}
+                    _hover={{
+                        cursor: 'pointer',
+                        backgroundColor: '#EBEFFD'
+                    }}
+                >
+                    <Avatar name={channel.members[0].username} src={channel.members[0].avatar} />
+                    <Flex direction="column" width="100%">
+                        <Flex className="user" alignItems="center" gap={2}>
+                            <Text fontWeight="500" fontSize="lg">
+                                {channel.members[0].displayName}
+                            </Text>
+                            <Text color="gray.300" fontSize="sm">
+                                @{channel.members[0].username}
+                            </Text>
+                        </Flex>
                     </Flex>
                 </Flex>
-            </Flex>
+            </Box>
         </>
     )
 }
@@ -54,6 +58,25 @@ export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels
         <Layout>
             <Flex minHeight="100vh" as="main">
                 <Box border="1px" borderColor="gray.200" as="section" width="75%">
+                    <Flex
+                        px={5}
+                        as="header"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        borderBottom="1px"
+                        borderColor="gray.200"
+                    >
+                        <Heading fontSize="xl">Messages</Heading>
+                        <IconButton
+                            aria-label="Like"
+                            backgroundColor="transparent"
+                            icon={<EnvelopeOpen size={20} />}
+                            borderRadius="50%"
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
+                            onClick={() => console.log('Well')}
+                        />
+                    </Flex>
                     {channels.map((chan, i) => (
                         <Channel key={i} channel={chan} />
                     ))}

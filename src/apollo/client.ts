@@ -4,25 +4,29 @@ import { createUploadLink } from 'apollo-upload-client'
 import { onError } from '@apollo/client/link/error'
 
 const httpLink = createHttpLink({
-    uri: 'http://localhost:8000/graphql'
+    uri: 'http://localhost:8000/graphql',
+    credentials: 'include'
 })
 const uploadLink = createUploadLink({
-    uri: 'http://localhost:8000/graphql'
-    // fetchOptions: { credentials: 'include' }
+    uri: 'http://localhost:8000/graphql',
+    fetchOptions: { credentials: 'include' }
 })
 const authLink = setContext((_, { headers }) => {
     // get the authentication token from local storage if it exists
-    let token
     if (typeof window !== 'undefined') {
-        token = localStorage.getItem('token')
-    }
-    // return the headers to the context so httpLink can read them
-    return {
-        headers: {
-            ...headers,
-            Authorization: token ? `HEHEHA ${token}` : ''
+        return {
+            fetchOptions: {
+                credentials: 'include'
+            },
+            headers: {
+                ...headers,
+                Authorization: `HEHEHA ${localStorage.getItem('token')}`
+            }
         }
     }
+    // return the headers to the context so httpLink can read them
+    console.log(headers)
+    return headers
 })
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -39,8 +43,9 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 })
 
 const client = new ApolloClient({
-    link: ApolloLink.from([authLink, errorLink, uploadLink, httpLink]),
-    cache: new InMemoryCache()
+    link: ApolloLink.from([authLink, errorLink, uploadLink]),
+    cache: new InMemoryCache(),
+    credentials: 'include'
 })
 
 export default client

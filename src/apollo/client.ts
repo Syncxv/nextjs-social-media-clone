@@ -1,12 +1,8 @@
-import { ApolloClient, ApolloLink, createHttpLink, InMemoryCache } from '@apollo/client'
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { createUploadLink } from 'apollo-upload-client'
 import { onError } from '@apollo/client/link/error'
 
-const httpLink = createHttpLink({
-    uri: 'http://localhost:8000/graphql',
-    credentials: 'include'
-})
 const uploadLink = createUploadLink({
     uri: 'http://localhost:8000/graphql',
     fetchOptions: { credentials: 'include' }
@@ -25,7 +21,6 @@ const authLink = setContext((_, { headers }) => {
         }
     }
     // return the headers to the context so httpLink can read them
-    console.log(headers)
     return headers
 })
 

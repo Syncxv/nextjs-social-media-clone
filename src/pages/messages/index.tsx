@@ -56,7 +56,7 @@ export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels
     const isChannelSelected = router.query.channel_id
     return (
         <Layout>
-            <Flex minHeight="100vh" as="main">
+            <Flex overflowX="hidden" minHeight="100vh" as="main">
                 <Box border="1px" borderColor="gray.200" as="section" width="75%">
                     <Flex
                         px={5}
@@ -81,9 +81,22 @@ export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels
                         <Channel key={i} channel={chan} />
                     ))}
                 </Box>
-                <Center borderRight="1px" borderColor="gray.200" as="section" width="100%">
-                    {isChannelSelected ? children : <Text>bru select a message</Text>}
-                </Center>
+                <Box
+                    overflowY="auto"
+                    maxHeight="100vh"
+                    borderRight="1px"
+                    borderColor="gray.200"
+                    as="section"
+                    width="100%"
+                >
+                    {isChannelSelected ? (
+                        children
+                    ) : (
+                        <Center>
+                            <Text>bru select a message</Text>
+                        </Center>
+                    )}
+                </Box>
             </Flex>
         </Layout>
     )

@@ -1,10 +1,19 @@
 import { Box, Center, Flex } from '@chakra-ui/react'
+import { GetServerSideProps } from 'next'
 import React from 'react'
+import client from '../../apollo/client'
+import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
 import Layout from '../../components/Layout'
+import { ChannelType } from '../../types'
+import { _socketStore } from '../../stores/socket'
+import { userStore } from '../../stores/user'
+import withAuth from '../../components/withAtuh'
+interface Props {
+    channels: ChannelType[]
+}
 
-interface Props {}
-
-const Messages: React.FC<Props> = ({}) => {
+const Messages: React.FC<Props> = ({ channels }) => {
+    console.log(channels)
     return (
         <Layout>
             <Flex minHeight="100vh" as="main">
@@ -18,5 +27,15 @@ const Messages: React.FC<Props> = ({}) => {
         </Layout>
     )
 }
-
-export default Messages
+export const getServerSideProps: GetServerSideProps = async context => {
+    const {
+        data: { getChannels }
+    } = await client.query<{ getChannels: ChannelType[] }>({
+        query: GET_CHANNELS_QUERY,
+        context: { headers: { Authorization: `HEHHEHA ${context.req.cookies.token}` } }
+    })
+    return {
+        props: { channels: getChannels }
+    }
+}
+export default withAuth(Messages)

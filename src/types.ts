@@ -70,5 +70,15 @@ export interface PostType {
     comments: CommentType[]
 }
 
+export interface ChannelType {
+    _id: string
+    members: UserType[]
+}
+
+export interface MessageType {
+    _id: string
+    content: string
+    channel: ChannelType
+}
 export const deafultPfp = 'https://i.imgur.com/JUVFPMN.png'
 export const apiUrl = 'http://localhost:8000/'

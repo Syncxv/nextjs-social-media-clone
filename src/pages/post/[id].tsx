@@ -13,19 +13,23 @@ interface Props {
 
 const PostInfoPage: React.FC<Props> = ({ post }) => {
     const forceUpdate = useForceUpdate()
-    console.log(post)
     return <Layout>{post ? <PostInfo forceUpdate={forceUpdate} post={post} /> : <Text>Bruh</Text>}</Layout>
 }
 export const getServerSideProps: GetServerSideProps = async context => {
-    const {
-        data: { getPost }
-    } = await client.query<{ getPost: PostType }>({
-        query: GET_POST_QUERY,
-        variables: { post_id: context?.params?.id }
-    })
-    console.log(getPost)
-    return {
-        props: { post: getPost }
+    try {
+        const {
+            data: { getPost }
+        } = await client.query<{ getPost: PostType }>({
+            query: GET_POST_QUERY,
+            variables: { post_id: context?.params?.id }
+        })
+        return {
+            props: { post: getPost }
+        }
+    } catch {
+        return {
+            props: { post: null }
+        }
     }
 }
 export default PostInfoPage

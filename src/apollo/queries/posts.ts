@@ -19,8 +19,10 @@ export const GET_POSTS_QUERY = gql`
                 content
                 attachment
                 likes
+                likedUsers
                 author {
                     username
+                    displayName
                     _id
                 }
             }

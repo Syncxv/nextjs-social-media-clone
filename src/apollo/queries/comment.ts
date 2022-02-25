@@ -33,6 +33,7 @@ export const GET_COMMENTS_AFTER = gql`
             updatedAt
             createdAt
             likes
+            likedUsers
             content
             attachment
             author {

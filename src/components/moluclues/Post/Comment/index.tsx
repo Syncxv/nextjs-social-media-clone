@@ -6,14 +6,11 @@ import { useState } from 'react'
 import { COMMENT_LIKE_MUTATION } from '../../../../apollo/queries/comment'
 import { userStore } from '../../../../stores/user'
 import { CommentType } from '../../../../types'
-interface Props {
-    comment: CommentType
-}
 
 const CommentAction: React.FC<{ width: string; comment: CommentType }> = ({ width, comment }) => {
     const client = useApolloClient()
     const user = userStore(state => state.user)
-    const [isLiked, setLiked] = useState(true)
+    const [isLiked, setLiked] = useState(user ? comment.likedUsers.includes(user._id) : false)
     const [likes, setLikes] = useState(comment.likes)
     const handleLike = async () => {
         const { data } = await client.mutate<{ likeComment: { comment: CommentType } }>({
@@ -56,6 +53,9 @@ const CommentAction: React.FC<{ width: string; comment: CommentType }> = ({ widt
             />
         </Flex>
     )
+}
+interface Props {
+    comment: CommentType
 }
 
 const Comment: React.FC<Props> = ({ comment }) => {

@@ -21,6 +21,7 @@ const SideButton: React.FC<{ leftIcon: any; path?: string }> = ({ leftIcon, chil
             _focus={{ boxShadow: 'none' }}
             leftIcon={leftIcon}
             color={textColor}
+            fontWeight={selected ? '700' : '500'}
             _hover={{
                 background: selected ? 'transparent' : '#EBEFFD',
                 color: textHover

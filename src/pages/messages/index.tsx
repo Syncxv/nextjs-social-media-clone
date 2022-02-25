@@ -81,14 +81,7 @@ export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels
                         <Channel key={i} channel={chan} />
                     ))}
                 </Box>
-                <Box
-                    overflowY="auto"
-                    maxHeight="100vh"
-                    borderRight="1px"
-                    borderColor="gray.200"
-                    as="section"
-                    width="100%"
-                >
+                <Box borderRight="1px" borderColor="gray.200" as="section" width="100%">
                     {isChannelSelected ? (
                         children
                     ) : (

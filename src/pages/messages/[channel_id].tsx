@@ -1,6 +1,7 @@
-import { Box, Flex, List, ListItem, Text, Wrap, WrapItem } from '@chakra-ui/react'
+import { Avatar, Box, Flex, IconButton, Input, Text } from '@chakra-ui/react'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
+import { ImageSquare, PaperPlaneRight } from 'phosphor-react'
 import { MessagesLayout } from '.'
 import client from '../../apollo/client'
 import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
@@ -29,12 +30,64 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages }) => {
         <>
             <MessagesLayout channels={channels}>
                 <Flex mt="auto" direction="column">
-                    <Flex px={4} mb={5} justifyContent="flex-end" alignItems="flex-end" minHeight="85vh">
+                    <Flex px={2} py={3} as="header">
+                        <Flex width="100%" alignItems="center" gap={2}>
+                            <Avatar
+                                size="xs"
+                                name={channel.members[0].username}
+                                src={channel.members[0].avatar}
+                            />
+                            <Flex fontSize="0.9rem" direction="column" width="100%">
+                                <Text fontWeight="500" fontSize="lg">
+                                    {channel.members[0].displayName}
+                                </Text>
+                                <Text color="gray.300" fontSize="sm">
+                                    @{channel.members[0].username}
+                                </Text>
+                            </Flex>
+                        </Flex>
+                    </Flex>
+                    <Flex
+                        overflowY="auto"
+                        maxHeight="100vh"
+                        minHeight="85vh"
+                        px={4}
+                        mb={5}
+                        justifyContent="flex-end"
+                        alignItems="flex-end"
+                        flexGrow="1"
+                    >
                         {messages.map((msg, i) => (
                             <Message key={i} message={msg} />
                         ))}
                     </Flex>
-                    <Text>hi</Text>
+                    <Flex px={1} alignItems="center">
+                        <IconButton
+                            aria-label="Like"
+                            backgroundColor="transparent"
+                            icon={<ImageSquare size={20} />}
+                            borderRadius="50%"
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
+                            onClick={() => console.log('Well')}
+                        />
+                        <Input
+                            placeholder="Send A Message"
+                            mx={2}
+                            size="sm"
+                            borderRadius="999px"
+                            width="100%"
+                        />
+                        <IconButton
+                            aria-label="Like"
+                            backgroundColor="transparent"
+                            icon={<PaperPlaneRight size={22} />}
+                            borderRadius="50%"
+                            _focus={{ boxShadow: 'none' }}
+                            _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
+                            onClick={() => console.log('Well')}
+                        />
+                    </Flex>
                 </Flex>
             </MessagesLayout>
         </>

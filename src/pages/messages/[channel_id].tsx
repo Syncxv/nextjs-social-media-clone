@@ -20,6 +20,7 @@ interface Props {
     messages: MessageType[]
 }
 const MessageComponent: React.FC<{ message: Message; user: UserType }> = ({ message, user }) => {
+    const isCurrentUser = user._id === message.author._id
     return (
         <>
             <Box
@@ -28,15 +29,15 @@ const MessageComponent: React.FC<{ message: Message; user: UserType }> = ({ mess
                 borderRadius="16px"
                 borderBottomRightRadius="0px"
                 backgroundColor={
-                    user._id === message.author._id
+                    isCurrentUser
                         ? message.state === MESSAGE_STATES.SENDING
                             ? 'blue.300'
                             : 'blue.500'
                         : 'gray.300'
                 }
-                alignSelf={user._id === message.author._id ? 'flex-end' : 'flex-start'}
+                alignSelf={isCurrentUser ? 'flex-end' : 'flex-start'}
             >
-                <Text color="white">{message.content}</Text>
+                <Text color={isCurrentUser ? 'white' : 'black'}>{message.content}</Text>
             </Box>
         </>
     )
@@ -186,7 +187,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
     } = await client.query<{ getMessages: MessageType[] }>({
         query: GET_MESSAGES_QUERY,
         variables: { channelId: context.query.channel_id },
-        context: { headers: { Authorization: `HEHHEHA ${context.req.cookies.token}` } }
+        context: { headers: { Authorization: `HEHHEHA ${context.req.cookies.token}` } },
+        fetchPolicy: 'no-cache'
     })
     return {
         props: { channels: getChannels, messages: getMessages }

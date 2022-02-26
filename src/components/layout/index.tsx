@@ -10,7 +10,7 @@ const Layout: NextPage<Props> = ({ children }) => {
     return (
         <HStack justifyContent="center" alignItems="flex-start" width="100vw" height="100vh">
             <SideBar />
-            <Box overflowY="auto" maxH="100vh" minH="100vh" width="40%">
+            <Box overflowY="auto" maxH="100vh" minH="100vh" width="max(40%, 37rem)">
                 {children}
             </Box>
         </HStack>

@@ -37,7 +37,7 @@ export const _socketStore = create<
             socket.on(SOCKET_ACTIONS.RECIVE_MESSAGE, (e: MessageType) => {
                 console.log(e)
                 const msg = new Message(e, MESSAGE_STATES.SENT)
-                messageStore.addMessage(msg.getChannelId(), msg)
+                messageStore.addMessage(msg)
             })
         })
     }

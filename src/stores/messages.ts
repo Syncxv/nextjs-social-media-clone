@@ -5,7 +5,7 @@ import { ChannelType } from '../types'
 
 export interface MessageStoreHehe {
     channels: { [key: string]: { channel: ChannelType; messages: Message[] } }
-    addMessage: (id: string, message: Message) => void
+    addMessage: (message: Message) => void
     initalize: (channel: ChannelType, messages: Message[]) => void
     updateMessage: (prevMessageId: string, message: Message) => void
 }
@@ -20,10 +20,12 @@ export const _messageStore = create<MessageStoreHehe>(set => ({
                 state.channels[channel._id].messages = messages
             })
         ),
-    addMessage: (id: string, message: Message) =>
+    addMessage: (message: Message) =>
         set(
             produce((state: MessageStoreHehe) => {
-                state.channels[id].messages.push(message)
+                if (!state.channels[message.getChannelId()])
+                    state.channels[message.getChannelId()] = { channel: message.channel, messages: [] }
+                state.channels[message.getChannelId()].messages.push(message)
             })
         ),
     updateMessage: (prevMessageId: string, message: Message) =>

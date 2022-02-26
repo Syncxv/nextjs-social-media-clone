@@ -4,7 +4,7 @@ import React from 'react'
 import client from '../../apollo/client'
 import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
 import Layout from '../../components/Layout'
-import { ChannelType } from '../../types'
+import { ChannelType, UserType } from '../../types'
 import { _socketStore } from '../../stores/socket'
 import { userStore } from '../../stores/user'
 import withAuth from '../../components/withAtuh'
@@ -14,9 +14,10 @@ interface Props {
     channels: ChannelType[]
 }
 
-const Channel: React.FC<{ channel: ChannelType }> = ({ channel }) => {
+const Channel: React.FC<{ channel: ChannelType; user: UserType }> = ({ channel, user }) => {
     const router = useRouter()
     const selected = router.query.channel_id === channel._id
+    const recivingMember = channel.members.find(s => s._id !== user._id)!
     return (
         <>
             <Box width="100%" borderBottom="1px" borderColor="gray.200">
@@ -35,14 +36,14 @@ const Channel: React.FC<{ channel: ChannelType }> = ({ channel }) => {
                         backgroundColor: '#EBEFFD'
                     }}
                 >
-                    <Avatar name={channel.members[0].username} src={channel.members[0].avatar} />
+                    <Avatar name={recivingMember.username} src={recivingMember.avatar} />
                     <Flex direction="column" width="100%">
                         <Flex className="user" alignItems="center" gap={2}>
                             <Text fontWeight="500" fontSize="lg">
-                                {channel.members[0].displayName}
+                                {recivingMember.displayName}
                             </Text>
                             <Text color="gray.300" fontSize="sm">
-                                @{channel.members[0].username}
+                                @{recivingMember.username}
                             </Text>
                         </Flex>
                     </Flex>
@@ -53,6 +54,7 @@ const Channel: React.FC<{ channel: ChannelType }> = ({ channel }) => {
 }
 export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels, children }) => {
     const router = useRouter()
+    const user = userStore(state => state.user)!
     const isChannelSelected = router.query.channel_id
     return (
         <Layout>
@@ -78,7 +80,7 @@ export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels
                         />
                     </Flex>
                     {channels.map((chan, i) => (
-                        <Channel key={i} channel={chan} />
+                        <Channel key={i} channel={chan} user={user} />
                     ))}
                 </Box>
                 <Box borderRight="1px" borderColor="gray.200" as="section" width="100%">

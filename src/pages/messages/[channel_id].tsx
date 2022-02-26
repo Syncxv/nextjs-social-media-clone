@@ -9,6 +9,7 @@ import client from '../../apollo/client'
 import { CREATE_MESSAGE_MUTATION } from '../../apollo/mutations/message'
 import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
 import { GET_MESSAGES_QUERY } from '../../apollo/queries/messages'
+import withAuth from '../../components/withAtuh'
 import { Message } from '../../objects/Message'
 import { _messageStore } from '../../stores/messages'
 import { userStore } from '../../stores/user'
@@ -60,10 +61,11 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     console.log('BRUH bro', messageStore)
     console.log(messageStore?.channels[channel._id]?.messages)
     const messages = messageStore?.channels[channel._id]?.messages
+    const recivingMember = channel.members.find(s => s._id !== user._id)!
     return (
         <>
             <MessagesLayout channels={channels}>
-                <Flex mt="auto" direction="column">
+                <Flex mt="auto" direction="column" height="100vh">
                     <Flex
                         backgroundColor="rgba(255, 255, 255, 0.85)" // ILL ADD THEMES LATER BRO
                         backdropFilter="blur(12px)"
@@ -74,17 +76,13 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                         as="header"
                     >
                         <Flex width="100%" alignItems="center" gap={2}>
-                            <Avatar
-                                size="xs"
-                                name={channel.members[0].username}
-                                src={channel.members[0].avatar}
-                            />
+                            <Avatar size="xs" name={recivingMember.username} src={recivingMember.avatar} />
                             <Flex fontSize="0.9rem" direction="column" width="100%">
                                 <Text fontWeight="500" fontSize="lg">
-                                    {channel.members[0].displayName}
+                                    {recivingMember.displayName}
                                 </Text>
                                 <Text color="gray.300" fontSize="sm">
-                                    @{channel.members[0].username}
+                                    @{recivingMember.username}
                                 </Text>
                             </Flex>
                         </Flex>
@@ -93,7 +91,6 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                         ref={scrollableRef}
                         overflowY="auto"
                         maxHeight="85vh"
-                        minHeight="85vh"
                         px={4}
                         mb={5}
                         alignItems="flex-end"
@@ -111,7 +108,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                             if (!inputRef.current?.value.length) return
                             console.log('BEFORE', Object.values(messageStore.channels[channel._id].messages))
                             const heheMessage = Message.new(user, channel, inputRef.current!.value)
-                            messageStore.addMessage(channel._id, heheMessage)
+                            messageStore.addMessage(heheMessage)
                             toScrollRef.current?.scrollIntoView()
                             try {
                                 const { data } = await sendMessage({
@@ -190,4 +187,4 @@ export const getServerSideProps: GetServerSideProps = async context => {
     }
 }
 
-export default ChannelTHingy
+export default withAuth(ChannelTHingy)

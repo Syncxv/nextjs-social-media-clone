@@ -53,10 +53,15 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     useEffect(() => {
         messageStore.initalize(
             channel!,
-            _messages.map(s => new Message(s, MESSAGE_STATES.SENT))
+            _messages.map(s => new Message(s, MESSAGE_STATES.SENT)),
+            hehe
         )
-        toScrollRef.current?.scrollIntoView()
+        setTimeout(() => toScrollRef.current?.scrollIntoView(), 50)
     }, [])
+    const hehe = () => {
+        console.log(toScrollRef)
+        setTimeout(() => toScrollRef.current?.scrollIntoView(), 50)
+    }
     if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>
     console.log('BRUH bro', messageStore)
     console.log(messageStore?.channels[channel._id]?.messages)
@@ -109,7 +114,6 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                             console.log('BEFORE', Object.values(messageStore.channels[channel._id].messages))
                             const heheMessage = Message.new(user, channel, inputRef.current!.value)
                             messageStore.addMessage(heheMessage)
-                            toScrollRef.current?.scrollIntoView()
                             try {
                                 const { data } = await sendMessage({
                                     variables: { channelId: channel._id, content: inputRef.current?.value }
@@ -123,10 +127,12 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                                         MESSAGE_STATES.SENT
                                     )
                                 )
+                                toScrollRef.current?.scrollIntoView()
                                 console.log(data?.createMessage, 'BRUH')
                             } catch {
                                 heheMessage.state = MESSAGE_STATES.ERROR
                                 heheMessage.updateSelf(heheMessage)
+                                toScrollRef.current?.scrollIntoView()
                             }
                             console.log('AFTER', Object.values(messageStore.channels[channel._id].messages))
                             inputRef.current!.value = ''

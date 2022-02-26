@@ -92,6 +92,10 @@ export enum MESSAGE_STATES {
     SENT = 'SENT',
     ERROR = 'ERROR'
 }
+export enum SOCKET_ACTIONS {
+    USER_UPDATE = 'user-update',
+    RECIVE_MESSAGE = 'recive-message'
+}
 
 export const deafultPfp = 'https://i.imgur.com/JUVFPMN.png'
 export const apiUrl = 'http://localhost:8000/'

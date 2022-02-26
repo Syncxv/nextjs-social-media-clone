@@ -12,13 +12,13 @@ import { GET_MESSAGES_QUERY } from '../../apollo/queries/messages'
 import { Message } from '../../objects/Message'
 import { _messageStore } from '../../stores/messages'
 import { userStore } from '../../stores/user'
-import { ChannelType, MessageType, MESSAGE_STATES } from '../../types'
+import { ChannelType, MessageType, MESSAGE_STATES, UserType } from '../../types'
 
 interface Props {
     channels: ChannelType[]
     messages: MessageType[]
 }
-const MessageComponent: React.FC<{ message: Message }> = ({ message }) => {
+const MessageComponent: React.FC<{ message: Message; user: UserType }> = ({ message, user }) => {
     return (
         <>
             <Box
@@ -26,7 +26,14 @@ const MessageComponent: React.FC<{ message: Message }> = ({ message }) => {
                 py={2}
                 borderRadius="16px"
                 borderBottomRightRadius="0px"
-                backgroundColor={message.state === MESSAGE_STATES.SENDING ? 'gray.300' : 'blue.500'}
+                backgroundColor={
+                    user._id === message.author._id
+                        ? message.state === MESSAGE_STATES.SENDING
+                            ? 'blue.300'
+                            : 'blue.500'
+                        : 'gray.300'
+                }
+                alignSelf={user._id === message.author._id ? 'flex-end' : 'flex-start'}
             >
                 <Text color="white">{message.content}</Text>
             </Box>
@@ -36,6 +43,8 @@ const MessageComponent: React.FC<{ message: Message }> = ({ message }) => {
 const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const router = useRouter()
     const inputRef = useRef<HTMLInputElement | null>(null)
+    const scrollableRef = useRef<HTMLDivElement | null>(null)
+    const toScrollRef = useRef<HTMLDivElement | null>(null)
     const messageStore = _messageStore(state => state)
     const user = userStore(state => state.user)!
     const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
@@ -45,6 +54,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
             channel!,
             _messages.map(s => new Message(s, MESSAGE_STATES.SENT))
         )
+        toScrollRef.current?.scrollIntoView()
     }, [])
     if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>
     console.log('BRUH bro', messageStore)
@@ -54,7 +64,15 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
         <>
             <MessagesLayout channels={channels}>
                 <Flex mt="auto" direction="column">
-                    <Flex px={2} py={3} as="header">
+                    <Flex
+                        backgroundColor="rgba(255, 255, 255, 0.85)" // ILL ADD THEMES LATER BRO
+                        backdropFilter="blur(12px)"
+                        border="1px"
+                        borderColor="gray.200"
+                        px={2}
+                        py={3}
+                        as="header"
+                    >
                         <Flex width="100%" alignItems="center" gap={2}>
                             <Avatar
                                 size="xs"
@@ -72,6 +90,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                         </Flex>
                     </Flex>
                     <Flex
+                        ref={scrollableRef}
                         overflowY="auto"
                         maxHeight="85vh"
                         minHeight="85vh"
@@ -82,7 +101,9 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                         direction="column"
                         gap={2}
                     >
-                        {messages && messages.map((msg, i) => <MessageComponent key={i} message={msg} />)}
+                        {messages &&
+                            messages.map((msg, i) => <MessageComponent key={i} message={msg} user={user} />)}
+                        <div ref={toScrollRef}></div>
                     </Flex>
                     <form
                         onSubmit={async e => {
@@ -91,6 +112,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                             console.log('BEFORE', Object.values(messageStore.channels[channel._id].messages))
                             const heheMessage = Message.new(user, channel, inputRef.current!.value)
                             messageStore.addMessage(channel._id, heheMessage)
+                            toScrollRef.current?.scrollIntoView()
                             try {
                                 const { data } = await sendMessage({
                                     variables: { channelId: channel._id, content: inputRef.current?.value }

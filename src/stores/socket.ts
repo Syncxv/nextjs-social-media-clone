@@ -1,7 +1,9 @@
 import produce from 'immer'
 import create, { GetState, SetState, StoreApi } from 'zustand'
-import { apiUrl } from '../types'
+import { apiUrl, MessageType, MESSAGE_STATES, SOCKET_ACTIONS } from '../types'
 import { io, Socket } from 'socket.io-client'
+import { _messageStore } from './messages'
+import { Message } from '../objects/Message'
 export interface SocketStoreHEHE {
     socket: Socket | null
     openConnection: () => Promise<boolean | any>
@@ -15,6 +17,7 @@ export const _socketStore = create<
 >((set, get) => ({
     socket: null,
     openConnection: () => {
+        const messageStore = _messageStore.getState()
         const socket = io(apiUrl, {
             query: {
                 token: localStorage.getItem('token')
@@ -31,6 +34,11 @@ export const _socketStore = create<
             })
 
             socket.on('connect_error', e => rej(e))
+            socket.on(SOCKET_ACTIONS.RECIVE_MESSAGE, (e: MessageType) => {
+                console.log(e)
+                const msg = new Message(e, MESSAGE_STATES.SENT)
+                messageStore.addMessage(msg.getChannelId(), msg)
+            })
         })
     }
 }))

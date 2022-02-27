@@ -261,7 +261,10 @@ class BetterChannelThingy extends React.Component<Props, { initalized: boolean }
                         fetchPolicy: 'no-cache'
                     })
                     console.log(getMessages)
-                    this.props.messageStore.addMessages(getMessages.map(s => new Message(s)))
+                    this.props.messageStore.addMessages(
+                        this.channel._id,
+                        getMessages.map(s => new Message(s))
+                    )
                     this.forceUpdate()
                 }
             }

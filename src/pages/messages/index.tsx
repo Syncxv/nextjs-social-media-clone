@@ -14,7 +14,7 @@ interface Props {
     channels: ChannelType[]
 }
 
-export const Channel: React.FC<{ channel: ChannelType; user: UserType }> = ({ channel, user }) => {
+const Channel: React.FC<{ channel: ChannelType; user: UserType }> = ({ channel, user }) => {
     const router = useRouter()
     const selected = router.query.channel_id === channel._id
     const recivingMember = channel.members.find(s => s._id !== user._id)!
@@ -52,8 +52,10 @@ export const Channel: React.FC<{ channel: ChannelType; user: UserType }> = ({ ch
         </>
     )
 }
-export const MessagesLayoutDefault: React.FC<{ channels: ChannelType[] }> = ({ channels }) => {
+export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels, children }) => {
+    const router = useRouter()
     const user = userStore(state => state.user)!
+    const isChannelSelected = router.query.channel_id
     return (
         <Layout>
             <Flex overflowX="hidden" minHeight="100vh" as="main">
@@ -82,17 +84,20 @@ export const MessagesLayoutDefault: React.FC<{ channels: ChannelType[] }> = ({ c
                     ))}
                 </Box>
                 <Box borderRight="1px" borderColor="gray.200" as="section" width="100%">
-                    <Center>
-                        <Text>bru select a message</Text>
-                    </Center>
+                    {isChannelSelected ? (
+                        children
+                    ) : (
+                        <Center>
+                            <Text>bru select a message</Text>
+                        </Center>
+                    )}
                 </Box>
             </Flex>
         </Layout>
     )
 }
-
 const Messages: React.FC<Props> = ({ channels }) => {
-    return <MessagesLayoutDefault channels={channels} />
+    return <MessagesLayout channels={channels} />
 }
 export const getServerSideProps: GetServerSideProps = async context => {
     const {

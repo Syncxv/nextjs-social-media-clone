@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { _socketStore } from '../stores/socket'
 import { userStore } from '../stores/user'
 import { UserType } from '../types'
+import Layout from './Layout'
 const useAuth = () => {
     const usrStore = userStore()
     const socketStore = _socketStore()
@@ -27,7 +28,7 @@ const useAuth = () => {
     }, [])
     return { loading, stores: { usrStore, socketStore } }
 }
-const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {
+const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>, layout?: boolean) => {
     // eslint-disable-next-line react/display-name
     return (props: any) => {
         const {
@@ -40,7 +41,13 @@ const withAuth = <T extends object>(Component: React.FC<T> | NextPage<T>) => {
             router.push('/login')
             return <div>ERROR</div>
         }
-        return <Component {...props} />
+        return layout ? (
+            <Layout>
+                <Component {...props} />
+            </Layout>
+        ) : (
+            <Component {...props} />
+        )
     }
 }
 

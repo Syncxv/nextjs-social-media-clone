@@ -1,10 +1,10 @@
 import { useMutation } from '@apollo/client'
-import { Avatar, Box, Flex, IconButton, Input, Text } from '@chakra-ui/react'
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import { ImageSquare, PaperPlaneRight } from 'phosphor-react'
-import { useEffect, useRef, useState } from 'react'
-import { MessagesLayout } from '.'
+import { Avatar, Box, Flex, Heading, IconButton, Input, Text } from '@chakra-ui/react'
+import { GetServerSideProps, NextPageContext } from 'next'
+import Router, { useRouter } from 'next/router'
+import { EnvelopeOpen, ImageSquare, PaperPlaneRight } from 'phosphor-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { MessagesLayoutDefault } from '.'
 import client from '../../apollo/client'
 import { CREATE_MESSAGE_MUTATION } from '../../apollo/mutations/message'
 import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
@@ -12,10 +12,10 @@ import { GET_MESSAGES_QUERY } from '../../apollo/queries/messages'
 import withAuth from '../../components/withAtuh'
 import useInView from '../../hooks/useInView'
 import { Message } from '../../objects/Message'
-import { _messageStore } from '../../stores/messages'
-import { userStore } from '../../stores/user'
+import { MessageStoreHehe, _messageStore } from '../../stores/messages'
+import { userStore, UserStoreHehe } from '../../stores/user'
 import { ChannelType, MessageType, MESSAGE_STATES, UserType } from '../../types'
-
+import { Channel } from '.'
 interface Props {
     channels: ChannelType[]
     messages: MessageType[]
@@ -61,181 +61,169 @@ const MessagePlaceHolder: React.FC = () => {
         </>
     )
 }
-const MessagePlaceHolderUL: React.FC<{
+
+class BetterChannelThingy extends React.Component<Props> {
+    messageStore: MessageStoreHehe
+    userStore: UserStoreHehe
     channel: ChannelType
-    before: Message
-    addMessages: (messages: Message[]) => void
-    isReady: boolean
-}> = ({ channel, before, addMessages, isReady }) => {
-    const placeHolderRef = useRef<HTMLDivElement | null>(null)
-    const isVisile = useInView({}, placeHolderRef)
-    console.log(isReady)
-    useEffect(() => {
-        const fetchMoreMessages = async () => {
-            const {
-                data: { getMessages }
-            } = await client.query<{ getMessages: MessageType[] }>({
-                query: GET_MESSAGES_QUERY,
-                variables: { channelId: channel._id, before: before._id },
-                fetchPolicy: 'no-cache'
-            })
-            console.log(getMessages)
-            addMessages(getMessages.map(s => new Message(s, MESSAGE_STATES.SENT)))
-        }
-        if (isVisile && isReady) {
-            fetchMoreMessages()
-        }
-    }, [isVisile, isReady])
-    return (
-        <Flex direction="column" gap={2} width="100%" ref={placeHolderRef}>
-            {Array.from(Array(10)).map((_, i) => (
-                <MessagePlaceHolder key={i} />
-            ))}
-        </Flex>
-    )
-}
-const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
-    const router = useRouter()
-    const inputRef = useRef<HTMLInputElement | null>(null)
-    const scrollableRef = useRef<HTMLDivElement | null>(null)
-    const toScrollRef = useRef<HTMLDivElement | null>(null)
-    const messageStore = _messageStore(state => state)
-    const user = userStore(state => state.user)!
-    const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
-    const channel = channels.find(s => s._id === router.query.channel_id)
-
-    useEffect(() => {
-        messageStore.initalize(
-            channel!,
-            _messages.map(s => new Message(s, MESSAGE_STATES.SENT)),
-            () => {
-                console.log(toScrollRef)
-                setTimeout(() => {
-                    toScrollRef.current?.scrollIntoView()
-                }, 1)
-            }
+    scrollableRef: React.RefObject<HTMLDivElement>
+    placeHolderRef: React.RefObject<HTMLDivElement>
+    toScrollRef: React.RefObject<HTMLDivElement>
+    resizeObserver: ResizeObserver
+    constructor(props: any) {
+        super(props)
+        this.messageStore = _messageStore.getState()
+        this.userStore = userStore.getState()
+        this.channel = this.props.channels.find(s => s._id === Router.query.channel_id)!
+        this.scrollableRef = React.createRef()
+        this.placeHolderRef = React.createRef()
+        this.toScrollRef = React.createRef()
+        this.resizeObserver = new ResizeObserver(this.handleResize.bind(this))
+        this.messageStore.initalize(
+            this.channel,
+            this.props.messages.map(s => new Message(s, MESSAGE_STATES.SENT)),
+            () => {}
         )
-        setTimeout(() => toScrollRef.current?.scrollIntoView(), 50)
-    }, [])
+    }
 
-    if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>
-    console.log('BRUH bro', messageStore)
-    console.log(messageStore?.channels[channel._id]?.messages)
-    const messages = messageStore?.channels[channel._id]?.messages
-    const recivingMember = channel.members.find(s => s._id !== user._id)!
-    return (
-        <>
-            <MessagesLayout channels={channels}>
-                <Flex mt="auto" direction="column" height="100vh">
-                    <Flex
-                        backgroundColor="rgba(255, 255, 255, 0.85)" // ILL ADD THEMES LATER BRO
-                        backdropFilter="blur(12px)"
-                        border="1px"
-                        borderColor="gray.200"
-                        px={2}
-                        py={3}
-                        as="header"
-                    >
-                        <Flex width="100%" alignItems="center" gap={2}>
-                            <Avatar size="xs" name={recivingMember.username} src={recivingMember.avatar} />
-                            <Flex fontSize="0.9rem" direction="column" width="100%">
-                                <Text fontWeight="500" fontSize="lg">
-                                    {recivingMember.displayName}
-                                </Text>
-                                <Text color="gray.300" fontSize="sm">
-                                    @{recivingMember.username}
-                                </Text>
+    componentDidMount() {
+        console.log('MOUNTED', this.toScrollRef)
+        if (this.scrollableRef.current) {
+            console.log('um')
+            this.resizeObserver.observe(this.scrollableRef.current!)
+        }
+    }
+
+    componentWillUnmount() {
+        this.resizeObserver.unobserve(this.scrollableRef.current!)
+    }
+
+    render() {
+        const { channels } = this.props
+        if (!this.channel) return <MessagesLayoutDefault channels={channels}>bru wot</MessagesLayoutDefault>
+        const recivingMember = this.channel.members.find(s => s._id !== this.userStore.user!._id)!
+        return (
+            <>
+                <Flex overflowX="hidden" minHeight="100vh" as="main">
+                    <Box border="1px" borderColor="gray.200" as="section" width="75%">
+                        <Flex
+                            px={5}
+                            as="header"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            borderBottom="1px"
+                            borderColor="gray.200"
+                        >
+                            <Heading fontSize="xl">Messages</Heading>
+                            <IconButton
+                                aria-label="Like"
+                                backgroundColor="transparent"
+                                icon={<EnvelopeOpen size={20} />}
+                                borderRadius="50%"
+                                _focus={{ boxShadow: 'none' }}
+                                _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
+                                onClick={() => console.log('Well')}
+                            />
+                        </Flex>
+                        {channels.map((chan, i) => (
+                            <Channel key={i} channel={chan} user={this.userStore.user!} />
+                        ))}
+                    </Box>
+                    <Box borderRight="1px" borderColor="gray.200" as="section" width="100%">
+                        <Flex mt="auto" direction="column" height="100vh">
+                            <Flex
+                                backgroundColor="rgba(255, 255, 255, 0.85)" // ILL ADD THEMES LATER BRO
+                                backdropFilter="blur(12px)"
+                                border="1px"
+                                borderColor="gray.200"
+                                px={2}
+                                py={3}
+                                as="header"
+                            >
+                                <Flex width="100%" alignItems="center" gap={2}>
+                                    <Avatar
+                                        size="xs"
+                                        name={recivingMember.username}
+                                        src={recivingMember.avatar}
+                                    />
+                                    <Flex fontSize="0.9rem" direction="column" width="100%">
+                                        <Text fontWeight="500" fontSize="lg">
+                                            {recivingMember.displayName}
+                                        </Text>
+                                        <Text color="gray.300" fontSize="sm">
+                                            @{recivingMember.username}
+                                        </Text>
+                                    </Flex>
+                                </Flex>
+                            </Flex>
+                            <Flex
+                                ref={this.scrollableRef}
+                                overflowY="auto"
+                                maxHeight="85vh"
+                                px={4}
+                                mb={5}
+                                alignItems="flex-end"
+                                flexGrow="1"
+                                direction="column"
+                                gap={2}
+                            >
+                                {this.messageStore.channels[this.channel._id]?.hasMore && (
+                                    <Flex direction="column" gap={2} width="100%" ref={this.placeHolderRef}>
+                                        {Array.from(Array(10)).map((_, i) => (
+                                            <MessagePlaceHolder key={i} />
+                                        ))}
+                                    </Flex>
+                                )}
+                                {this.messageStore.channels[this.channel._id]?.messages &&
+                                    this.messageStore.channels[this.channel._id]?.messages.map((msg, i) => (
+                                        <MessageComponent key={i} message={msg} user={this.userStore.user!} />
+                                    ))}
+                                <div ref={this.toScrollRef}></div>
                             </Flex>
                         </Flex>
-                    </Flex>
-                    <Flex
-                        ref={scrollableRef}
-                        overflowY="auto"
-                        maxHeight="85vh"
-                        px={4}
-                        mb={5}
-                        alignItems="flex-end"
-                        flexGrow="1"
-                        direction="column"
-                        gap={2}
-                    >
-                        {messageStore.channels[channel._id]?.hasMore && (
-                            <MessagePlaceHolderUL
-                                addMessages={messageStore.addMessages}
-                                channel={channel}
-                                before={messages[0]!}
-                                isReady={messageStore.channels[channel._id]!.initalized}
-                            />
-                        )}
-                        {messages &&
-                            messages.map((msg, i) => <MessageComponent key={i} message={msg} user={user} />)}
-                        <div ref={toScrollRef}></div>
-                    </Flex>
-                    <form
-                        onSubmit={async e => {
-                            e.preventDefault()
-                            if (!inputRef.current?.value.length) return
-                            console.log('BEFORE', Object.values(messageStore.channels[channel._id].messages))
-                            const heheMessage = Message.new(user, channel, inputRef.current!.value)
-                            messageStore.addMessage(heheMessage)
-                            try {
-                                const { data } = await sendMessage({
-                                    variables: { channelId: channel._id, content: inputRef.current?.value }
-                                })
-                                const message = data!.createMessage.message
-                                heheMessage.updateSelf(
-                                    Message.new(
-                                        message.author,
-                                        message.channel,
-                                        message.content,
-                                        MESSAGE_STATES.SENT
-                                    )
-                                )
-                                toScrollRef.current?.scrollIntoView()
-                                console.log(data?.createMessage, 'BRUH')
-                            } catch {
-                                heheMessage.state = MESSAGE_STATES.ERROR
-                                heheMessage.updateSelf(heheMessage)
-                                toScrollRef.current?.scrollIntoView()
-                            }
-                            console.log('AFTER', Object.values(messageStore.channels[channel._id].messages))
-                            inputRef.current!.value = ''
-                        }}
-                    >
-                        <Flex px={1} alignItems="center">
-                            <IconButton
-                                aria-label="Like"
-                                backgroundColor="transparent"
-                                icon={<ImageSquare size={20} />}
-                                borderRadius="50%"
-                                _focus={{ boxShadow: 'none' }}
-                                _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
-                                onClick={() => console.log('Well')}
-                            />
-                            <Input
-                                ref={inputRef}
-                                placeholder="Send A Message"
-                                mx={2}
-                                size="sm"
-                                borderRadius="999px"
-                                width="100%"
-                            />
-                            <IconButton
-                                aria-label="Like"
-                                backgroundColor="transparent"
-                                icon={<PaperPlaneRight size={22} />}
-                                borderRadius="50%"
-                                _focus={{ boxShadow: 'none' }}
-                                _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
-                                onClick={() => console.log('Well')}
-                                type="submit"
-                            />
-                        </Flex>
-                    </form>
+                    </Box>
                 </Flex>
-            </MessagesLayout>
-        </>
-    )
+            </>
+        )
+    }
+
+    handleResize(e: ResizeObserverEntry[]) {
+        console.log(e, e[0].target.childElementCount)
+        if (this.getScrollState()?.scrollTop === 0 && this.messageStore.channels[this.channel._id].hasMore) {
+            this.scrollableRef.current?.scrollTo(0, Number.MAX_SAFE_INTEGER)
+            this.setState({ initalized: true })
+        }
+    }
+
+    getScrollState(elem?: HTMLDivElement) {
+        if (!elem) {
+            const div = this.scrollableRef.current!
+            if (div) {
+                return {
+                    scrollTop: div.scrollTop,
+                    scrollLeft: div.scrollLeft,
+                    scrollHeight: div.scrollHeight,
+                    scrollWidth: div.scrollWidth,
+                    offsetHeight: div.offsetHeight,
+                    offsetWidth: div.offsetWidth,
+                    clientHeight: div.clientHeight,
+                    offsetTop: div.offsetTop
+                }
+            }
+        }
+        if (elem) {
+            return {
+                scrollTop: elem.scrollTop,
+                scrollLeft: elem.scrollLeft,
+                scrollHeight: elem.scrollHeight,
+                scrollWidth: elem.scrollWidth,
+                offsetHeight: elem.offsetHeight,
+                offsetWidth: elem.offsetWidth,
+                clientHeight: elem.clientHeight,
+                offsetTop: elem.offsetTop
+            }
+        }
+    }
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
@@ -258,4 +246,4 @@ export const getServerSideProps: GetServerSideProps = async context => {
     }
 }
 
-export default withAuth(ChannelTHingy)
+export default withAuth(BetterChannelThingy, true)

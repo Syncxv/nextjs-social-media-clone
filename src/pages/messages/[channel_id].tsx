@@ -10,6 +10,7 @@ import { CREATE_MESSAGE_MUTATION } from '../../apollo/mutations/message'
 import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
 import { GET_MESSAGES_QUERY } from '../../apollo/queries/messages'
 import withAuth from '../../components/withAtuh'
+import useInView from '../../hooks/useInView'
 import { Message } from '../../objects/Message'
 import { _messageStore } from '../../stores/messages'
 import { userStore } from '../../stores/user'
@@ -27,7 +28,7 @@ const MessageComponent: React.FC<{ message: Message; user: UserType }> = ({ mess
                 px={3}
                 py={2}
                 borderRadius="16px"
-                borderBottomRightRadius="0px"
+                {...{ [isCurrentUser ? 'borderBottomRightRadius' : 'borderBottomLeftRadius']: '0px' }}
                 backgroundColor={
                     isCurrentUser
                         ? message.state === MESSAGE_STATES.SENDING
@@ -42,6 +43,57 @@ const MessageComponent: React.FC<{ message: Message; user: UserType }> = ({ mess
         </>
     )
 }
+const MessagePlaceHolder: React.FC = () => {
+    const isCurrentUser = Math.random() < 0.8
+    return (
+        <>
+            <Box
+                className="place-holder"
+                px={3}
+                py={2}
+                borderRadius="16px"
+                {...{ [isCurrentUser ? 'borderBottomRightRadius' : 'borderBottomLeftRadius']: '0px' }}
+                backgroundColor="gray.300"
+                alignSelf={isCurrentUser ? 'flex-end' : 'flex-start'}
+            >
+                <Text color="transparent">"HEHE"</Text>
+            </Box>
+        </>
+    )
+}
+const MessagePlaceHolderUL: React.FC<{
+    channel: ChannelType
+    before: Message
+    addMessages: (messages: Message[]) => void
+    isReady: boolean
+}> = ({ channel, before, addMessages, isReady }) => {
+    const placeHolderRef = useRef<HTMLDivElement | null>(null)
+    const isVisile = useInView({}, placeHolderRef)
+    console.log(isReady)
+    useEffect(() => {
+        const fetchMoreMessages = async () => {
+            const {
+                data: { getMessages }
+            } = await client.query<{ getMessages: MessageType[] }>({
+                query: GET_MESSAGES_QUERY,
+                variables: { channelId: channel._id, before: before._id },
+                fetchPolicy: 'no-cache'
+            })
+            console.log(getMessages)
+            addMessages(getMessages.map(s => new Message(s, MESSAGE_STATES.SENT)))
+        }
+        if (isVisile && isReady) {
+            fetchMoreMessages()
+        }
+    }, [isVisile, isReady])
+    return (
+        <Flex direction="column" gap={2} width="100%" ref={placeHolderRef}>
+            {Array.from(Array(10)).map((_, i) => (
+                <MessagePlaceHolder key={i} />
+            ))}
+        </Flex>
+    )
+}
 const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const router = useRouter()
     const inputRef = useRef<HTMLInputElement | null>(null)
@@ -51,18 +103,21 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const user = userStore(state => state.user)!
     const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
     const channel = channels.find(s => s._id === router.query.channel_id)
+
     useEffect(() => {
         messageStore.initalize(
             channel!,
             _messages.map(s => new Message(s, MESSAGE_STATES.SENT)),
-            hehe
+            () => {
+                console.log(toScrollRef)
+                setTimeout(() => {
+                    toScrollRef.current?.scrollIntoView()
+                }, 1)
+            }
         )
         setTimeout(() => toScrollRef.current?.scrollIntoView(), 50)
     }, [])
-    const hehe = () => {
-        console.log(toScrollRef)
-        setTimeout(() => toScrollRef.current?.scrollIntoView(), 50)
-    }
+
     if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>
     console.log('BRUH bro', messageStore)
     console.log(messageStore?.channels[channel._id]?.messages)
@@ -104,6 +159,14 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                         direction="column"
                         gap={2}
                     >
+                        {messageStore.channels[channel._id]?.hasMore && (
+                            <MessagePlaceHolderUL
+                                addMessages={messageStore.addMessages}
+                                channel={channel}
+                                before={messages[0]!}
+                                isReady={messageStore.channels[channel._id]!.initalized}
+                            />
+                        )}
                         {messages &&
                             messages.map((msg, i) => <MessageComponent key={i} message={msg} user={user} />)}
                         <div ref={toScrollRef}></div>

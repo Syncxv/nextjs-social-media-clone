@@ -1,0 +1,11 @@
+@keyframes fadeAnim {
+    from {
+        filter: opacity(1);
+    }
+    to {
+        filter: opacity(0.6);
+    }
+}
+.place-holder {
+    animation: fadeAnim 0.7s 0.1s infinite alternate !important;
+}

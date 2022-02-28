@@ -11,6 +11,7 @@ import { GET_CHANNELS_QUERY } from '../../apollo/queries/channel'
 import { GET_MESSAGES_QUERY } from '../../apollo/queries/messages'
 import withAuth from '../../components/withAtuh'
 import useInView from '../../hooks/useInView'
+import { useObserver } from '../../hooks/useObserver'
 import { Message } from '../../objects/Message'
 import { _messageStore } from '../../stores/messages'
 import { userStore } from '../../stores/user'
@@ -64,7 +65,7 @@ const MessagePlaceHolder: React.FC = () => {
 const MessagePlaceHolderUL: React.FC<{
     channel: ChannelType
     before: Message
-    addMessages: (messages: Message[]) => void
+    addMessages: (id: string, messages: Message[]) => void
     isReady: boolean
 }> = ({ channel, before, addMessages, isReady }) => {
     const placeHolderRef = useRef<HTMLDivElement | null>(null)
@@ -80,7 +81,10 @@ const MessagePlaceHolderUL: React.FC<{
                 fetchPolicy: 'no-cache'
             })
             console.log(getMessages)
-            addMessages(getMessages.map(s => new Message(s, MESSAGE_STATES.SENT)))
+            addMessages(
+                channel._id,
+                getMessages.map(s => new Message(s, MESSAGE_STATES.SENT))
+            )
         }
         if (isVisile && isReady) {
             fetchMoreMessages()
@@ -99,8 +103,19 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const toScrollRef = useRef<HTMLDivElement | null>(null)
+    const initalizedRef = useRef(false)
     const messageStore = _messageStore(state => state)
     const user = userStore(state => state.user)!
+    useObserver({
+        callback: ([e]) => {
+            console.log(e)
+            if (!initalizedRef.current) {
+                initalizedRef.current = true
+                toScrollRef.current?.scrollIntoView()
+            }
+        },
+        ref: scrollableRef
+    })
     const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
     const channel = channels.find(s => s._id === router.query.channel_id)
 
@@ -115,7 +130,6 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                 }, 1)
             }
         )
-        setTimeout(() => toScrollRef.current?.scrollIntoView(), 50)
     }, [])
 
     if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>

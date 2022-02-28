@@ -8,7 +8,7 @@ export interface MessageStoreHehe {
         [key: string]: { initalized: boolean; channel: ChannelType; messages: Message[]; hasMore: boolean }
     }
     addMessage: (message: Message) => void
-    addMessages: (messages: Message[]) => void
+    addMessages: (id: string, messages: Message[]) => void
     initalize: (channel: ChannelType, messages: Message[], func: any) => void
     updateMessage: (prevMessageId: string, message: Message) => void
     scrollToBottom: () => void
@@ -45,7 +45,7 @@ export const _messageStore = create<MessageStoreHehe>(set => ({
                 state.scrollToBottom()
             })
         ),
-    addMessages: (messages: Message[]) => {
+    addMessages: (id: string, messages: Message[]) => {
         set(
             produce((state: MessageStoreHehe) => {
                 if (messages.length) {
@@ -59,6 +59,8 @@ export const _messageStore = create<MessageStoreHehe>(set => ({
                         }
                     channel.messages.unshift(...messages)
                     channel.hasMore = messages.length === 50
+                } else {
+                    state.channels[id].hasMore = false
                 }
             })
         )

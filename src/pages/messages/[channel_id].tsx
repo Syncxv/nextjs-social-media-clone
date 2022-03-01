@@ -3,7 +3,7 @@ import { Avatar, Box, Flex, IconButton, Input, Text } from '@chakra-ui/react'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { ImageSquare, PaperPlaneRight } from 'phosphor-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useLayoutEffect, MouseEvent } from 'react'
 import { MessagesLayout } from '.'
 import client from '../../apollo/client'
 import { CREATE_MESSAGE_MUTATION } from '../../apollo/mutations/message'
@@ -103,6 +103,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const toScrollRef = useRef<HTMLDivElement | null>(null)
+    const scrollState = useRef<number | null>(null)
     const [initalized, setIntialized] = useState(false)
     const messageStore = _messageStore(state => state)
     const user = userStore(state => state.user)!
@@ -130,12 +131,24 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
             }
         )
         console.log(scrollableRef, toScrollRef)
+        ;(window as any).sendMessage = sendMessage
     }, [])
+    useLayoutEffect(() => {
+        if (scrollState.current && scrollableRef.current) {
+            console.log('CHANGING SCROLL')
+            scrollableRef.current.scrollTop = scrollableRef.current.scrollHeight - scrollState.current
+        }
+    }, [messageStore?.channels[channel?._id || 'welp']?.messages || false])
     if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>
     console.log('BRUH bro', messageStore)
     console.log(messageStore?.channels[channel._id]?.messages)
     const messages = messageStore?.channels[channel._id]?.messages
     const recivingMember = channel.members.find(s => s._id !== user._id)!
+    const onScroll = (e: React.UIEvent<HTMLElement>) => {
+        if (scrollableRef.current) {
+            scrollState.current = scrollableRef.current.scrollHeight - scrollableRef.current.scrollTop
+        }
+    }
     return (
         <>
             <MessagesLayout channels={channels}>
@@ -171,6 +184,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                         flexGrow="1"
                         direction="column"
                         gap={2}
+                        onScroll={onScroll}
                     >
                         {messageStore.channels[channel._id]?.hasMore && (
                             <MessagePlaceHolderUL

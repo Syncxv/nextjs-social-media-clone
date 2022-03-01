@@ -57,8 +57,8 @@ export const _messageStore = create<MessageStoreHehe>(set => ({
                             messages: [],
                             hasMore: messages.length === 50
                         }
-                    channel.messages.unshift(...messages)
                     channel.hasMore = messages.length === 50
+                    channel.messages.unshift(...messages)
                 } else {
                     state.channels[id].hasMore = false
                 }

@@ -57,43 +57,41 @@ export const MessagesLayout: React.FC<{ channels: ChannelType[] }> = ({ channels
     const user = userStore(state => state.user)!
     const isChannelSelected = router.query.channel_id
     return (
-        <Layout>
-            <Flex overflowX="hidden" minHeight="100vh" as="main">
-                <Box border="1px" borderColor="gray.200" as="section" width="75%">
-                    <Flex
-                        px={5}
-                        as="header"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        borderBottom="1px"
-                        borderColor="gray.200"
-                    >
-                        <Heading fontSize="xl">Messages</Heading>
-                        <IconButton
-                            aria-label="Like"
-                            backgroundColor="transparent"
-                            icon={<EnvelopeOpen size={20} />}
-                            borderRadius="50%"
-                            _focus={{ boxShadow: 'none' }}
-                            _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
-                            onClick={() => console.log('Well')}
-                        />
-                    </Flex>
-                    {channels.map((chan, i) => (
-                        <Channel key={i} channel={chan} user={user} />
-                    ))}
-                </Box>
-                <Box borderRight="1px" borderColor="gray.200" as="section" width="100%">
-                    {isChannelSelected ? (
-                        children
-                    ) : (
-                        <Center>
-                            <Text>bru select a message</Text>
-                        </Center>
-                    )}
-                </Box>
-            </Flex>
-        </Layout>
+        <Flex overflowX="hidden" minHeight="100vh" as="main">
+            <Box border="1px" borderColor="gray.200" as="section" width="75%">
+                <Flex
+                    px={5}
+                    as="header"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    borderBottom="1px"
+                    borderColor="gray.200"
+                >
+                    <Heading fontSize="xl">Messages</Heading>
+                    <IconButton
+                        aria-label="Like"
+                        backgroundColor="transparent"
+                        icon={<EnvelopeOpen size={20} />}
+                        borderRadius="50%"
+                        _focus={{ boxShadow: 'none' }}
+                        _hover={{ backgroundColor: 'rgba(19, 35, 255, 0.37)' }}
+                        onClick={() => console.log('Well')}
+                    />
+                </Flex>
+                {channels.map((chan, i) => (
+                    <Channel key={i} channel={chan} user={user} />
+                ))}
+            </Box>
+            <Box borderRight="1px" borderColor="gray.200" as="section" width="100%">
+                {isChannelSelected ? (
+                    children
+                ) : (
+                    <Center>
+                        <Text>bru select a message</Text>
+                    </Center>
+                )}
+            </Box>
+        </Flex>
     )
 }
 const Messages: React.FC<Props> = ({ channels }) => {
@@ -110,4 +108,4 @@ export const getServerSideProps: GetServerSideProps = async context => {
         props: { channels: getChannels }
     }
 }
-export default withAuth(Messages)
+export default withAuth(Messages, true)

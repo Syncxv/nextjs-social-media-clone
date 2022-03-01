@@ -103,22 +103,21 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const toScrollRef = useRef<HTMLDivElement | null>(null)
-    const initalizedRef = useRef(false)
+    const [initalized, setIntialized] = useState(false)
     const messageStore = _messageStore(state => state)
     const user = userStore(state => state.user)!
+    const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
+    const channel = channels.find(s => s._id === router.query.channel_id)
     useObserver({
         callback: ([e]) => {
             console.log(e)
-            if (!initalizedRef.current) {
-                initalizedRef.current = true
+            if (!initalized) {
+                setIntialized(true)
                 toScrollRef.current?.scrollIntoView()
             }
         },
         ref: scrollableRef
     })
-    const [sendMessage] = useMutation<{ createMessage: { message: MessageType } }>(CREATE_MESSAGE_MUTATION)
-    const channel = channels.find(s => s._id === router.query.channel_id)
-
     useEffect(() => {
         messageStore.initalize(
             channel!,
@@ -130,8 +129,8 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                 }, 1)
             }
         )
+        console.log(scrollableRef, toScrollRef)
     }, [])
-
     if (!channel) return <MessagesLayout channels={channels}>unkown channel eh</MessagesLayout>
     console.log('BRUH bro', messageStore)
     console.log(messageStore?.channels[channel._id]?.messages)
@@ -178,7 +177,7 @@ const ChannelTHingy: React.FC<Props> = ({ channels, messages: _messages }) => {
                                 addMessages={messageStore.addMessages}
                                 channel={channel}
                                 before={messages[0]!}
-                                isReady={messageStore.channels[channel._id]!.initalized}
+                                isReady={initalized}
                             />
                         )}
                         {messages &&
@@ -272,4 +271,4 @@ export const getServerSideProps: GetServerSideProps = async context => {
     }
 }
 
-export default withAuth(ChannelTHingy)
+export default withAuth(ChannelTHingy, true)

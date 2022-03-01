@@ -58,7 +58,7 @@ export const Actions: React.FC<{ width: string; item: PostType }> = memo(({ widt
                         _focus={{ boxShadow: 'none' }}
                         _hover={{ backgroundColor: 'rgba(35, 19, 255, 0.37)' }}
                     />
-                    <Text>{(item as PostType).comments.length}</Text>
+                    <Text>{(item as PostType).commentCount}</Text>
                 </Flex>
                 <IconButton
                     aria-label="Share"
@@ -210,7 +210,7 @@ export const PostInfo: React.FC<PostInfoProps> = ({ post, forceUpdate }) => {
                                 </Text>
                             </Flex>
                             <Flex alignItems="center" gap={2}>
-                                <Text>{post.comments.length}</Text>
+                                <Text>{post.commentCount}</Text>
                                 <Text fontWeight="semibold" _hover={{ textDecoration: 'underline' }}>
                                     Replies / Comments
                                 </Text>
